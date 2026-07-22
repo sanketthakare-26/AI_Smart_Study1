@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+ï»¿import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Crown, Mic, MicOff, Send, Timer, UserPlus, Users, Plus,
@@ -11,7 +11,7 @@ import { fadeUp, PageHeader, staggerContainer } from "@/components/kit";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/rooms")({
-  head: () => ({ meta: [{ title: "Study Rooms — NeuroWake" }] }),
+  head: () => ({ meta: [{ title: "Study Rooms â€” NeuroWake" }] }),
   component: RoomsPage,
 });
 
@@ -176,13 +176,13 @@ function RoomsPage() {
     .map((u, i) => ({ ...u, rank: i + 1 }));
 
   const inviteUrl = typeof window !== "undefined" ? window.location.href : "";
-  const waMsg = encodeURIComponent(`Study with me on NeuroWake! My ID: ${myUserCode} — ${inviteUrl}`);
+  const waMsg = encodeURIComponent(`Study with me on NeuroWake! My ID: ${myUserCode} â€” ${inviteUrl}`);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Study Rooms"
-        subtitle="Create or join rooms — real-time chat powered by WebSockets"
+        subtitle="Create or join rooms â€” real-time chat powered by WebSockets"
         actions={
           <button onClick={() => setShowInviteModal(true)} className="btn-gradient inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold">
             <UserPlus className="h-4 w-4" /> Invite Friends
@@ -202,7 +202,7 @@ function RoomsPage() {
         <form onSubmit={handleAddFriend} className="flex flex-1 max-w-xs items-center gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input type="text" maxLength={5} placeholder="5-digit Friend ID…" value={searchFriendCode}
+            <input type="text" maxLength={5} placeholder="5-digit Friend IDâ€¦" value={searchFriendCode}
               onChange={e => setSearchFriendCode(e.target.value.replace(/\D/g, ""))}
               className="w-full rounded-xl border border-input bg-card py-2 pl-9 pr-3 text-xs outline-none focus:border-primary" />
           </div>
@@ -266,7 +266,7 @@ function RoomsPage() {
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">{r.topic} · by {r.createdBy}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{r.topic} Â· by {r.createdBy}</p>
                     <div className="mt-3 flex items-center justify-between">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Users className="h-3.5 w-3.5" />
@@ -338,7 +338,7 @@ function RoomsPage() {
                     <p className="font-display text-base font-bold">{activeRoom.name}</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {activeRoom.topic} · {onlineRoomUsers.length} user{onlineRoomUsers.length !== 1 ? "s" : ""} online
+                    {activeRoom.topic} Â· {onlineRoomUsers.length} user{onlineRoomUsers.length !== 1 ? "s" : ""} online
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -358,7 +358,7 @@ function RoomsPage() {
               <div className="flex flex-wrap items-center gap-2 border-b border-border bg-muted/30 px-5 py-2.5">
                 <span className="self-center text-[10px] font-bold uppercase text-muted-foreground">In Room:</span>
                 {onlineRoomUsers.length === 0 ? (
-                  <span className="text-xs italic text-muted-foreground">Connecting…</span>
+                  <span className="text-xs italic text-muted-foreground">Connectingâ€¦</span>
                 ) : onlineRoomUsers.map(u => (
                   <div key={u.socketId} className="flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-2.5 py-1">
                     <span className="grid h-6 w-6 place-items-center rounded-full bg-primary-soft text-[10px] font-bold text-primary">
@@ -399,7 +399,7 @@ function RoomsPage() {
               <div className="border-t border-border bg-muted/10 p-3">
                 <div className="flex gap-2">
                   <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()}
-                    placeholder={`Message ${activeRoom.name}…`}
+                    placeholder={`Message ${activeRoom.name}â€¦`}
                     className="flex-1 rounded-xl border border-input bg-card px-4 py-2.5 text-sm outline-none focus:border-primary" />
                   <button onClick={send} className="btn-gradient grid h-11 w-11 shrink-0 place-items-center rounded-xl">
                     <Send className="h-4 w-4 text-white" />
@@ -466,7 +466,7 @@ function RoomsPage() {
               <div className="space-y-1 rounded-xl border border-primary/30 bg-primary-soft/20 p-4 text-center">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your 5-Digit Friend ID</p>
                 <p className="font-display text-4xl font-extrabold tracking-[0.3em] text-primary">{myUserCode}</p>
-                <p className="text-[11px] text-muted-foreground">Share this — friends type it to add you instantly.</p>
+                <p className="text-[11px] text-muted-foreground">Share this â€” friends type it to add you instantly.</p>
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground">Room Link</label>
