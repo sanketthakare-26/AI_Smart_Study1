@@ -310,3 +310,5 @@ Built with ❤️ as a Capstone 2026 project · Powered by **Custom ML + Google 
 
 </div>
 
+#   A I _ S m a r t _ S t u d y 1  
+ 
