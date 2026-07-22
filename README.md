@@ -2,7 +2,7 @@
 
 <img src="https://img.shields.io/badge/NeuroWake-AI%20Smart%20Study%20%26%20Alarm%20System-6366f1?style=for-the-badge&logo=brain&logoColor=white" />
 
-# 🧠 NeuroWake — AI Smart Study Planner
+# 🧠 VediQ — AI Smart Study Planner
 
 **An alarm that understands your brain, not just your clock.**
 
