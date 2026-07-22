@@ -174,8 +174,8 @@ User → Firebase Auth (Email/Password or Google popup)
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/sanketthakare-26/AI-Smart-Study-Planner.git
-cd AI-Smart-Study-Planner
+git clone https://github.com/sanketthakare-26/AI_Smart_Study1.git
+cd AI_Smart_Study1
 ```
 
 ---
@@ -309,6 +309,3 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 Built with ❤️ as a Capstone 2026 project · Powered by **Custom ML + Google Gemini**
 
 </div>
-
-#   A I _ S m a r t _ S t u d y 1  
- 
