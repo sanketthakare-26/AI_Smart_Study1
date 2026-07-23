@@ -76,21 +76,12 @@ export const aiApi = {
 };
 
 // ---------- ML predictions ----------
-const ML_DIRECT_URL = import.meta.env.VITE_ML_URL || "http://localhost:8000";
-
-async function mlDirect(path, payload) {
-  const res = await fetch(`${ML_DIRECT_URL}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error(`ML service returned ${res.status}`);
-  return res.json();
-}
+// All ML calls go through the backend server (which proxies to FastAPI or uses fallback logic).
+// Direct browser → FastAPI calls break in deployment since localhost:8000 is not reachable.
 
 export const mlApi = {
-  predictSnoozeRisk: (payload) => mlDirect("/predict/snooze-risk", payload),
-  predictBestSlot: (payload) => apiClient.post("/ml/predict/best-slot", payload).then((r) => r.data),
-  predictFocusScore: (payload) => mlDirect("/predict/focus-score", payload),
-  predictImageVerify: (payload) => mlDirect("/predict/image-verify", payload),
+  predictSnoozeRisk: (payload) => apiClient.post("/ml/predict/snooze-risk", payload).then((r) => r.data),
+  predictBestSlot:   (payload) => apiClient.post("/ml/predict/best-slot",   payload).then((r) => r.data),
+  predictFocusScore: (payload) => apiClient.post("/ml/predict/focus-score",  payload).then((r) => r.data),
+  predictImageVerify:(payload) => apiClient.post("/ml/predict/image-verify", payload).then((r) => r.data),
 };

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { VediqLogo } from "@/components/VediqLogo";
+import { checkGlobalAlarms } from "@/lib/alarm-manager";
 
 // ── Live notification engine with Persistent Deletion ─────────────────────────
 function buildLiveNotifications() {
@@ -660,6 +661,15 @@ export function AppShell({ children }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Global background alarm engine: monitor alarms every second across all pages
+  useEffect(() => {
+    const timer = setInterval(() => {
+      checkGlobalAlarms(navigate);
+    }, 1000);
+    checkGlobalAlarms(navigate);
+    return () => clearInterval(timer);
+  }, [navigate]);
 
   // Check if user should see the onboarding profile setup form upon logging in / registering
   useEffect(() => {

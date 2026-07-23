@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -236,7 +236,13 @@ function AlarmsPage() {
   const [tab, setTab] = useState("alarms");
   const [showModal, setShowModal] = useState(false);
   const [editAlarm, setEditAlarm] = useState(null);
-  const [ringingAlarm, setRingingAlarm] = useState(null);
+  const [ringingAlarm, setRingingAlarm] = useState(() => {
+    try {
+      const active = localStorage.getItem("VediQ_active_ringing_alarm");
+      if (active) return JSON.parse(active);
+    } catch (_) {}
+    return null;
+  });
   const [wakeHistory, setWakeHistory] = useState(() => {
     try {
       const raw = localStorage.getItem("VediQ_wake_history");
@@ -254,13 +260,35 @@ function AlarmsPage() {
 
   useEffect(() => { saveAlarms(alarms); }, [alarms]);
 
-  // Clean up sound on component unmount
+  // Sync active alarm & keep sound playing across page switches unless dismissed
   useEffect(() => {
-    return () => {
+    const syncActiveAlarm = () => {
       try {
-        soundRef.current?.stop();
-        window.activeAlarmSound?.stop();
+        const active = localStorage.getItem("VediQ_active_ringing_alarm");
+        if (active) {
+          setRingingAlarm(JSON.parse(active));
+        }
       } catch (_) {}
+    };
+
+    const handleCustomTrigger = (e) => {
+      if (e.detail) setRingingAlarm(e.detail);
+    };
+
+    window.addEventListener("VediQ_alarm_triggered", handleCustomTrigger);
+    window.addEventListener("storage", syncActiveAlarm);
+    syncActiveAlarm();
+
+    return () => {
+      window.removeEventListener("VediQ_alarm_triggered", handleCustomTrigger);
+      window.removeEventListener("storage", syncActiveAlarm);
+      // Clean up sound on unmount ONLY if alarm was dismissed
+      if (!localStorage.getItem("VediQ_active_ringing_alarm")) {
+        try {
+          soundRef.current?.stop();
+          window.activeAlarmSound?.stop();
+        } catch (_) {}
+      }
     };
   }, []);
 
@@ -303,6 +331,7 @@ function AlarmsPage() {
   }
 
   function dismissAlarm() {
+    localStorage.removeItem("VediQ_active_ringing_alarm");
     try { soundRef.current?.stop(); } catch (_) {}
     try { window.activeAlarmSound?.stop(); } catch (_) {}
     soundRef.current = null;
