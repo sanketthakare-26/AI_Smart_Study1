@@ -198,6 +198,7 @@ function ProfilePage() {
     window.dispatchEvent(new StorageEvent("storage", { key: "nw_user" }));
     window.dispatchEvent(new StorageEvent("storage", { key: "nw_profile_full" }));
     window.dispatchEvent(new StorageEvent("storage", { key: "nw_subjects" }));
+    window.dispatchEvent(new Event("nw_subjects_updated"));
 
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);

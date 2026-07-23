@@ -26,45 +26,104 @@ const CHART_COLORS = [
   "#a78bfa", "#34d399", "#fb923c", "#38bdf8", "#f472b6",
 ];
 
-/** Read courses from the user's profile in localStorage */
+/** Read courses dynamically from nw_subjects and nw_profile_full in localStorage */
 function loadProfileSubjects() {
+  const CHART_COLORS = [
+    "var(--chart-1)", "var(--chart-2)", "var(--chart-3)",
+    "var(--chart-4)", "var(--chart-5)",
+    "#a78bfa", "#34d399", "#fb923c", "#38bdf8", "#f472b6",
+  ];
+
+  const map = new Map();
+
+  const addOrMerge = (name, color, hours, status, id) => {
+    if (!name || typeof name !== "string") return;
+    const cleanName = name.trim();
+    if (!cleanName) return;
+    const key = cleanName.toLowerCase();
+    const parsedHours = Number(hours);
+    const validHours = (!isNaN(parsedHours) && parsedHours > 0)
+      ? parsedHours
+      : (status === "completed" ? 20 : status === "in-progress" ? 12 : 5);
+
+    if (map.has(key)) {
+      const existing = map.get(key);
+      existing.hours = Math.max(existing.hours, validHours);
+      if (color && !existing.color) existing.color = color;
+    } else {
+      map.set(key, {
+        id: id || `sub_${map.size}_${Date.now()}`,
+        name: cleanName,
+        color: color || CHART_COLORS[map.size % CHART_COLORS.length],
+        hours: validHours,
+        status: status || "in-progress",
+      });
+    }
+  };
+
+  // 1. Read from nw_subjects (populated by Study Planner & Profile)
   try {
-    const raw = localStorage.getItem("nw_profile_full");
-    if (raw) {
-      const profile = JSON.parse(raw);
-      if (Array.isArray(profile.courses) && profile.courses.length > 0) {
-        return profile.courses.map((c, idx) => ({
-          id: c.id || `ps_${idx}`,
-          name: c.name,
-          color: CHART_COLORS[idx % CHART_COLORS.length],
-          // Assign hours based on status: completed→20h, in-progress→12h, pending→4h
-          hours: c.status === "completed" ? (c.credits || 3) * 5
-               : c.status === "in-progress" ? (c.credits || 3) * 3
-               : (c.credits || 3) * 1,
-          status: c.status,
-        }));
+    const rawSubjects = localStorage.getItem("nw_subjects");
+    if (rawSubjects) {
+      const parsed = JSON.parse(rawSubjects);
+      if (Array.isArray(parsed)) {
+        parsed.forEach((s, idx) => {
+          addOrMerge(s.name, s.color, s.hours, s.status, s.id || `sub_${idx}`);
+        });
       }
     }
   } catch (_) {}
-  // Fallback: default subjects
+
+  // 2. Read from nw_profile_full (profile courses)
+  try {
+    const rawProfile = localStorage.getItem("nw_profile_full");
+    if (rawProfile) {
+      const profile = JSON.parse(rawProfile);
+      if (Array.isArray(profile.courses)) {
+        profile.courses.forEach((c, idx) => {
+          const hoursFromCredits = c.status === "completed" ? (c.credits || 3) * 5
+               : c.status === "in-progress" ? (c.credits || 3) * 3
+               : (c.credits || 3) * 1;
+          addOrMerge(c.name, c.color, c.hours || hoursFromCredits, c.status, c.id || `ps_${idx}`);
+        });
+      }
+    }
+  } catch (_) {}
+
+  const result = Array.from(map.values());
+  if (result.length > 0) return result;
+
+  // Fallback default subjects if empty
   return [
-    { id: "s1", name: "Data Structures", color: "var(--chart-1)", hours: 24.5, status: "revision" },
-    { id: "s2", name: "Machine Learning", color: "var(--chart-2)", hours: 31.2, status: "in-progress" },
-    { id: "s3", name: "Operating Systems", color: "var(--chart-3)", hours: 14.8, status: "in-progress" },
-    { id: "s4", name: "Discrete Math",    color: "var(--chart-4)", hours: 9.3,  status: "preparation" },
+    { id: "s1", name: "Computer Network", color: "var(--chart-1)", hours: 14, status: "in-progress" },
+    { id: "s2", name: "Operating System", color: "var(--chart-2)", hours: 10, status: "in-progress" },
   ];
 }
 
-/** Hook that stays in sync with profile storage changes */
+/** Hook that stays in sync with profile & subject storage changes and custom events */
 function useProfileSubjects() {
   const [subjects, setSubjects] = useState(loadProfileSubjects);
+
   useEffect(() => {
+    const update = () => setSubjects(loadProfileSubjects());
+
     const onStorage = (e) => {
-      if (e.key === "nw_profile_full") setSubjects(loadProfileSubjects());
+      if (!e.key || e.key === "nw_profile_full" || e.key === "nw_subjects" || e.key === "nw_completed_tasks") {
+        update();
+      }
     };
+
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener("nw_subjects_updated", update);
+    window.addEventListener("focus", update);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("nw_subjects_updated", update);
+      window.removeEventListener("focus", update);
+    };
   }, []);
+
   return subjects;
 }
 

@@ -91,6 +91,8 @@ function _nullishCoalesce(lhs, rhsFn) {
       _react.useEffect(() => {
         if (typeof window !== "undefined") {
           localStorage.setItem("nw_subjects", JSON.stringify(subjectList));
+          window.dispatchEvent(new Event("nw_subjects_updated"));
+          window.dispatchEvent(new StorageEvent("storage", { key: "nw_subjects" }));
         }
       }, [subjectList]);
       // Sync with profile: listen for nw_subjects changes (triggered when profile is saved)
