@@ -1,4 +1,4 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Crown, Mic, MicOff, Send, Timer, UserPlus, Users, Plus,
@@ -33,10 +33,22 @@ function initials(name) {
 }
 
 function RoomsPage() {
+  // Use logged in Firebase / nw_user user object
   const currentUser = (() => {
-    try { return JSON.parse(localStorage.getItem("nw_user") || "{}"); } catch { return {}; }
+    try {
+      const stored = localStorage.getItem("nw_user");
+      if (stored) return JSON.parse(stored);
+    } catch (_) {}
+    return {};
   })();
-  const userName = currentUser.name || "Student";
+
+  // Use actual logged in user name, or email username if name is missing/default
+  const userName = (() => {
+    if (currentUser.name && currentUser.name !== "Student") return currentUser.name;
+    if (currentUser.email) return currentUser.email.split("@")[0];
+    return "User";
+  })();
+
   const myUserCode = useRef(getOrGenerateUserCode()).current;
 
   // Real user study hours from subjects / profile
@@ -90,12 +102,12 @@ function RoomsPage() {
     s.on("room-list-update", updatedRooms => setRooms(updatedRooms));
     setSocket(s);
     return () => s.disconnect();
-  }, []);
+  }, [userName, myUserCode, userHours, userStreak]);
 
   useEffect(() => {
     if (!socket || !activeRoomId) return;
     socket.emit("join-study-room", { roomId: activeRoomId, userName, userCode: myUserCode });
-  }, [activeRoomId, socket]);
+  }, [activeRoomId, socket, userName, myUserCode]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -164,17 +176,36 @@ function RoomsPage() {
     toast.success(`${f.name} added!`);
   };
 
-  // Derive dynamic real-user leaderboard from global online active users
-  const realLeaderboard = [...globalOnlineUsers]
-    .map(u => ({
-      name: u.name,
-      hours: u.hours || 0,
-      streak: u.streak || 0,
-      userCode: u.userCode,
-      you: u.userCode === myUserCode,
-    }))
-    .sort((a, b) => b.hours - a.hours)
-    .map((u, i) => ({ ...u, rank: i + 1 }));
+  // Derive dynamic real-user leaderboard from global online active users + current user
+  const realLeaderboard = (() => {
+    const map = new Map();
+    // 1. Add current user with their exact credentials
+    map.set(myUserCode, {
+      name: userName,
+      hours: userHours,
+      streak: userStreak,
+      userCode: myUserCode,
+      you: true,
+    });
+
+    // 2. Add all global socket users
+    globalOnlineUsers.forEach(u => {
+      if (u.userCode) {
+        const isYou = u.userCode === myUserCode;
+        map.set(u.userCode, {
+          name: isYou ? userName : (u.name && u.name !== "Student" ? u.name : `User #${u.userCode}`),
+          hours: u.hours || 0,
+          streak: u.streak || 0,
+          userCode: u.userCode,
+          you: isYou,
+        });
+      }
+    });
+
+    return Array.from(map.values())
+      .sort((a, b) => b.hours - a.hours)
+      .map((u, i) => ({ ...u, rank: i + 1 }));
+  })();
 
   const inviteUrl = typeof window !== "undefined" ? window.location.href : "";
   const waMsg = encodeURIComponent(`Study with me on VediQ! My ID: ${myUserCode} — ${inviteUrl}`);
