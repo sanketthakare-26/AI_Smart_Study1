@@ -1,4 +1,4 @@
-﻿var __name = (target, value) => {
+var __name = (target, value) => {
   try {
     Object.defineProperty(target, "name", { value, configurable: true });
   } catch (e) {}
@@ -476,13 +476,26 @@ function _nullishCoalesce(lhs, rhsFn) {
               _jsxdevruntime.jsxDEV("h2", { className: "font-display text-lg font-semibold", children: "Recent sessions" }, void 0, false),
               _jsxdevruntime.jsxDEV("div", {
                 className: "mt-3 space-y-2.5",
-                children: _mockdata.sessionHistory.slice(0, 4).map((h) => _jsxdevruntime.jsxDEV("div", { className: "flex items-center justify-between text-sm", children: [
-                  _jsxdevruntime.jsxDEV("div", { className: "min-w-0", children: [
-                    _jsxdevruntime.jsxDEV("p", { className: "truncate font-medium", children: h.subject }, void 0, false),
-                    _jsxdevruntime.jsxDEV("p", { className: "text-xs text-muted-foreground", children: [h.date, " \xB7 ", h.duration, " \xB7 ", h.pomodoros, " pomodoros"] }, void 0, true)
-                  ] }, void 0, true),
-                  _jsxdevruntime.jsxDEV("span", { className: _utils.cn("chip shrink-0", h.focus >= 85 ? "bg-emerald-soft text-emerald-brand" : "bg-amber-soft text-amber-brand"), children: h.focus }, void 0, false)
-                ] }, h.id, true))
+                children: (() => {
+                  const recentItems = subjectList.length > 0
+                    ? subjectList.slice(0, 4).map((s, idx) => ({
+                        id: s.id || `s_${idx}`,
+                        subject: s.name,
+                        date: idx === 0 ? "Today" : idx === 1 ? "Yesterday" : `Jul ${10 - idx}`,
+                        duration: s.hours ? `${s.hours}h 00m` : "1h 30m",
+                        pomodoros: Math.max(1, Math.round((s.hours || 1.5) * 2)),
+                        focus: s.mastery ? Math.min(99, Math.max(70, Math.round(s.mastery * 0.9 + 15))) : (90 - idx * 4)
+                      }))
+                    : _mockdata.sessionHistory.slice(0, 4);
+
+                  return recentItems.map((h) => _jsxdevruntime.jsxDEV("div", { className: "flex items-center justify-between text-sm", children: [
+                    _jsxdevruntime.jsxDEV("div", { className: "min-w-0", children: [
+                      _jsxdevruntime.jsxDEV("p", { className: "truncate font-medium", children: h.subject }, void 0, false),
+                      _jsxdevruntime.jsxDEV("p", { className: "text-xs text-muted-foreground", children: [h.date, " \xB7 ", h.duration, " \xB7 ", h.pomodoros, " pomodoros"] }, void 0, true)
+                    ] }, void 0, true),
+                    _jsxdevruntime.jsxDEV("span", { className: _utils.cn("chip shrink-0", h.focus >= 85 ? "bg-emerald-soft text-emerald-brand" : "bg-amber-soft text-amber-brand"), children: h.focus }, void 0, false)
+                  ] }, h.id, true));
+                })()
               }, void 0, false)
             ] }, void 0, true)
           ] }, void 0, true)
