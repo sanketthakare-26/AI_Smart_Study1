@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { PageHeader, ThinkingDots } from "@/components/kit";
 import { aiApi } from "@/services/api";
 import { cn } from "@/lib/utils";
+import { clientChatbot } from "@/lib/gemini-client";
 export const Route = createFileRoute("/app/ai")({
     head: () => ({ meta: [{ title: "AI Tools — VediQ" }] }),
     component: AiToolsPage,
@@ -90,7 +91,8 @@ function Chatbot() {
         setInput("");
         setThinking(true);
         try {
-            const res = await aiApi.chatbot({ message: userMsg, history: [] });
+            // Use client-side Gemini engine — works both on localhost AND after deployment
+            const res = await clientChatbot(userMsg, messages);
             if (res && res.reply) {
                 setMessages((m) => [...m, { role: "ai", text: res.reply }]);
             } else {
@@ -98,21 +100,7 @@ function Chatbot() {
             }
         } catch (error) {
             console.error("Chatbot error:", error);
-            const errMsg = error?.response?.data?.error;
-            if (errMsg) {
-                setMessages((m) => [...m, { role: "ai", text: errMsg }]);
-            } else {
-                let fallback = "Active recall and structured focus intervals accelerate learning. Ask me anything about your subjects or study scheduling!";
-                const lower = userMsg.toLowerCase();
-                if (lower.includes("boosting") || lower.includes("gradient")) {
-                    fallback = "Gradient Boosting is an ensemble algorithm that builds decision trees sequentially, fitting each new tree to the residual errors of the previous trees.";
-                } else if (lower.includes("tree") || lower.includes("rotation")) {
-                    fallback = "Tree rotations (Left/Right) rebalance Binary Search Trees after insertions or deletions to preserve O(log n) time complexity.";
-                } else if (lower.includes("hi") || lower.includes("hello") || lower.includes("hey")) {
-                    fallback = "Hello! I am your VediQ AI Study Assistant. How can I help you with your study plan or subjects today?";
-                }
-                setMessages((m) => [...m, { role: "ai", text: fallback }]);
-            }
+            setMessages((m) => [...m, { role: "ai", text: "Ask me about your subjects, algorithms, ML concepts, or study strategies!" }]);
         } finally {
             setThinking(false);
         }

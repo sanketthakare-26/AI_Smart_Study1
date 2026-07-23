@@ -13,6 +13,7 @@ import * as _kit from "@/components/kit";
 import * as _api from "@/services/api";
 import * as _utils from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { clientChatbot } from "@/lib/gemini-client";
 
 function _nullishCoalesce(lhs, rhsFn) {
       if (lhs != null) {
@@ -166,21 +167,16 @@ function _nullishCoalesce(lhs, rhsFn) {
         setInput("");
         setThinking(true);
         try {
-          const res = await _api.aiApi.chatbot({ message: userMsg, history: [] });
+          // Use client-side Gemini engine — works both on localhost AND after deployment
+          const res = await clientChatbot(userMsg, messages);
           if (res && res.reply) {
             setMessages((m) => [...m, { role: "ai", text: res.reply }]);
           } else {
-            setMessages((m) => [...m, { role: "ai", text: "I'm sorry, I couldn't generate a response." }]);
+            setMessages((m) => [...m, { role: "ai", text: "I'm sorry, I couldn't generate a response. Please try again." }]);
           }
         } catch (error) {
           console.error("Chatbot API error:", error);
-          const serverErrorMsg = error?.response?.data?.error;
-          if (serverErrorMsg) {
-            setMessages((m) => [...m, { role: "ai", text: serverErrorMsg }]);
-          } else {
-            const fallbackReply = generateFallbackReply(userMsg);
-            setMessages((m) => [...m, { role: "ai", text: fallbackReply }]);
-          }
+          setMessages((m) => [...m, { role: "ai", text: "Ask me about your subjects, algorithms, ML concepts, or study strategies!" }]);
         } finally {
           setThinking(false);
         }
