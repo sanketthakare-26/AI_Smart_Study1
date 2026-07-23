@@ -257,13 +257,6 @@ function SidebarContent({ onNavigate }) {
           );
         })}
       </nav>
-
-      <div className="m-3 rounded-2xl bg-primary-soft p-4">
-        <p className="font-display text-sm font-semibold text-primary flex items-center gap-1.5">
-          <span className="animate-pulse">💡</span> Tonight's tip
-        </p>
-        <p className="mt-1 text-xs leading-relaxed text-secondary-foreground">{tip}</p>
-      </div>
     </div>
   );
 }
