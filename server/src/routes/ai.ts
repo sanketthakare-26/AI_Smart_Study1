@@ -20,7 +20,8 @@ router.post("/generate-plan", async (req: Request, res: Response) => {
 
     const genAI = getGenAI();
     if (genAI) {
-      const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+      const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+      const model = genAI.getGenerativeModel({ model: modelName });
       const prompt = `You are a professional student advisor and study coach.
 Create a structured weekly study plan based on the goals: "${goals}"${examDate ? ` and targeted for an exam on ${examDate}` : ""}.
 Provide 3-5 key focus areas, study slot recommendations, and specific topics to cover. Keep it concise, structured, and student-focused.`;
@@ -56,7 +57,8 @@ router.post("/summarize-notes", async (req: Request, res: Response) => {
 
     const genAI = getGenAI();
     if (genAI) {
-      const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+      const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+      const model = genAI.getGenerativeModel({ model: modelName });
       const prompt = `Summarize the following student notes in a concise study-friendly format. Use bullet points for key takeaways, define any complex terminology, and add a quick 'exam tip':\n\n${contentToSummarize}`;
       
       const result = await model.generateContent(prompt);
@@ -93,7 +95,8 @@ router.post("/generate-quiz", async (req: Request, res: Response) => {
 
     const genAI = getGenAI();
     if (genAI) {
-      const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+      const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+      const model = genAI.getGenerativeModel({ model: modelName });
       
       let prompt = "";
       if (context) {
@@ -171,7 +174,8 @@ router.post("/chatbot", async (req: Request, res: Response) => {
 
     const genAI = getGenAI();
     if (genAI) {
-      const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+      const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+      const model = genAI.getGenerativeModel({ model: modelName });
       
       // Translate frontend history layout to Gemini format
       const formattedHistory = (history || []).map((h: { role: string; text: string }) => ({

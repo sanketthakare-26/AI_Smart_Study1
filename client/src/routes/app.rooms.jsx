@@ -1,4 +1,4 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Crown, Mic, MicOff, Send, Timer, UserPlus, Users, Plus,
@@ -79,7 +79,8 @@ function RoomsPage() {
   const activeRoom = rooms.find(r => r.id === activeRoomId);
 
   useEffect(() => {
-    const s = io("http://localhost:5000", { transports: ["websocket", "polling"] });
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "") : "http://localhost:5000");
+    const s = io(socketUrl, { transports: ["websocket", "polling"] });
     s.on("connect", () => {
       s.emit("user-online", { name: userName, userCode: myUserCode, hours: userHours, streak: userStreak });
     });

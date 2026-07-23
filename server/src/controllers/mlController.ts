@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-const ML_SERVICE_URL = "http://localhost:8000";
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || "http://localhost:8000";
 
 export const predictSnoozeRisk = async (req: Request, res: Response) => {
   try {
