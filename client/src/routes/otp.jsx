@@ -1,4 +1,4 @@
-var __name = (target, value) => {
+﻿var __name = (target, value) => {
   try {
     Object.defineProperty(target, "name", { value, configurable: true });
   } catch (e) {}
@@ -34,7 +34,7 @@ function _optionalChain(ops) {
     }
 
     const Route = _reactrouter.createFileRoute("/otp")({
-      head: () => ({ meta: [{ title: "Verify email \u2014 NeuroWake" }] }),
+      head: () => ({ meta: [{ title: "Verify email \u2014 VediQ" }] }),
       component: OtpPage
     });
     

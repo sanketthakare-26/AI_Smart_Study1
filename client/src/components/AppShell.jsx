@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+﻿import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -33,7 +33,7 @@ function buildLiveNotifications() {
 
   try { user    = JSON.parse(localStorage.getItem("nw_user")         || "{}"); } catch (_) {}
   try { profile = JSON.parse(localStorage.getItem("nw_profile_full") || "{}"); } catch (_) {}
-  try { alarms  = JSON.parse(localStorage.getItem("neurowake_alarms_v2") || "[]"); } catch (_) {}
+  try { alarms  = JSON.parse(localStorage.getItem("VediQ_alarms_v2") || "[]"); } catch (_) {}
   try { subjects = JSON.parse(localStorage.getItem("nw_subjects")    || "[]"); } catch (_) {}
 
   const name        = user.name       || "Student";
@@ -381,7 +381,7 @@ function OnboardingModal({ user: firebaseUser, onClose }) {
           <div>
             <h2 className="font-display text-xl font-bold flex items-center gap-2">
               <span className="grid h-8 w-8 place-items-center rounded-xl btn-gradient text-sm">👋</span>
-              Welcome to NeuroWake!
+              Welcome to VediQ!
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">Set up your profile to personalize your study experience</p>
           </div>

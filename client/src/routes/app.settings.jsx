@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Settings, Bell, Palette, Sparkles, Brain, Check, Save } from "lucide-react";
@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { fadeUp, PageHeader } from "@/components/kit";
 
 export const Route = createFileRoute("/app/settings")({
-  head: () => ({ meta: [{ title: "App Settings — NeuroWake" }] }),
+  head: () => ({ meta: [{ title: "App Settings — VediQ" }] }),
   component: SettingsPage,
 });
 

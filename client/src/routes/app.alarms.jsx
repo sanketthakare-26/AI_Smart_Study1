@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+﻿import { useState, useEffect, useRef, useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { mlApi } from "../api/client.js";
 
 export const Route = createFileRoute("/app/alarms")({
-  head: () => ({ meta: [{ title: "Smart Alarms — NeuroWake" }] }),
+  head: () => ({ meta: [{ title: "Smart Alarms — VediQ" }] }),
   component: AlarmsPage,
 });
 
@@ -217,7 +217,7 @@ function generatePuzzle() {
 // ─────────────────────────────────────────────────────────────────────────────
 // ── Storage ───────────────────────────────────────────────────────────────────
 // ─────────────────────────────────────────────────────────────────────────────
-const STORAGE_KEY = "neurowake_alarms_v2";
+const STORAGE_KEY = "VediQ_alarms_v2";
 
 function loadAlarms() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]"); }
@@ -239,7 +239,7 @@ function AlarmsPage() {
   const [ringingAlarm, setRingingAlarm] = useState(null);
   const [wakeHistory, setWakeHistory] = useState(() => {
     try {
-      const raw = localStorage.getItem("neurowake_wake_history");
+      const raw = localStorage.getItem("VediQ_wake_history");
       if (raw) return JSON.parse(raw);
     } catch (_) {}
     return [
@@ -267,7 +267,7 @@ function AlarmsPage() {
   // Listen for storage dismiss signal (from QR dismiss page in another tab)
   useEffect(() => {
     const handleStorage = (e) => {
-      if (e.key === "neurowake_dismiss_signal") {
+      if (e.key === "VediQ_dismiss_signal") {
         dismissAlarm();
       }
     };
@@ -311,7 +311,7 @@ function AlarmsPage() {
     // Log this wake event to history in localStorage
     if (ringingAlarm) {
       try {
-        const historyRaw = localStorage.getItem("neurowake_wake_history");
+        const historyRaw = localStorage.getItem("VediQ_wake_history");
         const list = historyRaw ? JSON.parse(historyRaw) : [];
         const now = new Date();
         const timeStr = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
@@ -326,7 +326,7 @@ function AlarmsPage() {
           snoozes: 0,
         };
         list.unshift(newEntry);
-        localStorage.setItem("neurowake_wake_history", JSON.stringify(list));
+        localStorage.setItem("VediQ_wake_history", JSON.stringify(list));
         setWakeHistory(list);
       } catch (e) {
         console.warn("History save error:", e);
@@ -484,7 +484,7 @@ function AlarmsPage() {
               <button
                 onClick={() => {
                   if (confirm("Are you sure you want to clear your wake-up history?")) {
-                    localStorage.setItem("neurowake_wake_history", "[]");
+                    localStorage.setItem("VediQ_wake_history", "[]");
                     setWakeHistory([]);
                   }
                 }}
@@ -851,7 +851,7 @@ function TonePicker({ current, onSelect, onClose }) {
   const stopRef = useRef(null);
   const fileRef = useRef(null);
   const [customFiles, setCustomFiles] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("neurowake_custom_tones") ?? "[]"); }
+    try { return JSON.parse(localStorage.getItem("VediQ_custom_tones") ?? "[]"); }
     catch { return []; }
   });
 
@@ -877,7 +877,7 @@ function TonePicker({ current, onSelect, onClose }) {
       const newTone = { type: "custom", id: `custom_${Date.now()}`, fileName: file.name, dataUrl: reader.result };
       const updated = [...customFiles, newTone];
       setCustomFiles(updated);
-      localStorage.setItem("neurowake_custom_tones", JSON.stringify(updated));
+      localStorage.setItem("VediQ_custom_tones", JSON.stringify(updated));
       onSelect(newTone);
     };
     reader.readAsDataURL(file);
@@ -886,7 +886,7 @@ function TonePicker({ current, onSelect, onClose }) {
   function deleteCustom(id) {
     const updated = customFiles.filter((c) => c.id !== id);
     setCustomFiles(updated);
-    localStorage.setItem("neurowake_custom_tones", JSON.stringify(updated));
+    localStorage.setItem("VediQ_custom_tones", JSON.stringify(updated));
   }
 
   return (

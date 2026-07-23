@@ -1,4 +1,4 @@
-var __name = (target, value) => {
+﻿var __name = (target, value) => {
   try {
     Object.defineProperty(target, "name", { value, configurable: true });
   } catch (e) {}
@@ -23,7 +23,7 @@ function _nullishCoalesce(lhs, rhsFn) {
     }
 
     const Route = _reactrouter.createFileRoute("/app/planner")({
-      head: () => ({ meta: [{ title: "Study Planner \u2014 NeuroWake" }] }),
+      head: () => ({ meta: [{ title: "Study Planner \u2014 VediQ" }] }),
       component: PlannerPage
     });
     

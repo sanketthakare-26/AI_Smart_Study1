@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -11,7 +11,7 @@ import { faqs, landingStats, testimonials } from "@/lib/mock-data";
 export const Route = createFileRoute("/")({
     head: () => ({
         meta: [
-            { title: "NeuroWake — AI Smart Study & Alarm System" },
+            { title: "VediQ — AI Smart Study & Alarm System" },
             {
                 name: "description",
                 content: "An alarm that understands your brain, not just your clock. Adaptive wake prediction, AI study planning, and focus analytics for students.",
@@ -53,7 +53,7 @@ function Navbar() {
           <span className="grid h-9 w-9 place-items-center rounded-xl btn-gradient">
             <BrainCircuit className="h-5 w-5"/>
           </span>
-          <span className="font-display text-lg font-bold">NeuroWake</span>
+          <span className="font-display text-lg font-bold">VediQ</span>
         </Link>
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
           <a href="#features" className="transition-colors hover:text-foreground">Features</a>
@@ -100,7 +100,7 @@ function Landing() {
               An alarm that understands <span className="text-gradient">your brain</span>, not just your clock.
             </motion.h1>
             <motion.p variants={fadeUp} className="mt-5 max-w-lg text-lg text-muted-foreground">
-              NeuroWake predicts your perfect wake moment, plans your study day with AI, and shows you exactly how sleep drives your focus.
+              VediQ predicts your perfect wake moment, plans your study day with AI, and shows you exactly how sleep drives your focus.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-3">
               <Link to="/register" className="btn-gradient inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold">
@@ -119,7 +119,7 @@ function Landing() {
 
           <motion.div initial={{ opacity: 0, scale: 0.94, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="relative">
             <div className="animate-float overflow-hidden rounded-3xl border border-border shadow-lift">
-              <img src={heroImg} alt="NeuroWake AI dashboard with smart alarm, focus score, and study analytics" width={1280} height={960} className="h-auto w-full"/>
+              <img src={heroImg} alt="VediQ AI dashboard with smart alarm, focus score, and study analytics" width={1280} height={960} className="h-auto w-full"/>
             </div>
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 }} className="card-surface absolute -left-4 bottom-8 hidden items-center gap-3 rounded-2xl p-3 sm:flex">
               <span className="relative grid h-10 w-10 place-items-center rounded-xl bg-primary-soft text-primary">
@@ -168,7 +168,7 @@ function Landing() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="gsap-reveal mx-auto max-w-2xl text-center">
             <span className="chip bg-primary-soft text-primary">AI Workflow</span>
-            <h2 className="mt-4 font-display text-3xl font-bold sm:text-4xl">How NeuroWake thinks</h2>
+            <h2 className="mt-4 font-display text-3xl font-bold sm:text-4xl">How VediQ thinks</h2>
           </div>
           <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {workflow.map((w, i) => (<motion.div key={w.step} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12, duration: 0.55 }} className="relative">
@@ -245,7 +245,7 @@ function Landing() {
             <span className="grid h-8 w-8 place-items-center rounded-lg btn-gradient">
               <BrainCircuit className="h-4 w-4"/>
             </span>
-            <span className="font-display font-bold">NeuroWake</span>
+            <span className="font-display font-bold">VediQ</span>
           </div>
           <p className="text-sm text-muted-foreground">AI-Powered Smart Study & Alarm Management · Capstone 2026</p>
           <div className="flex gap-5 text-sm text-muted-foreground">

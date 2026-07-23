@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -212,7 +212,7 @@ function Landing() {
               variants={fadeUp}
               className="mt-5 max-w-lg text-lg text-muted-foreground"
             >
-              NeuroWake predicts your perfect wake moment, plans your study day with AI, and shows
+              VediQ predicts your perfect wake moment, plans your study day with AI, and shows
               you exactly how sleep drives your focus.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center gap-3">
@@ -235,7 +235,7 @@ function Landing() {
             <div className="animate-float overflow-hidden rounded-3xl border border-border shadow-lift">
               <img
                 src={heroDashboard}
-                alt="NeuroWake AI dashboard with smart alarm, focus score, and study analytics"
+                alt="VediQ AI dashboard with smart alarm, focus score, and study analytics"
                 width={1280}
                 height={960}
                 className="h-auto w-full"
@@ -294,7 +294,7 @@ function Landing() {
           <div className="gsap-reveal mx-auto max-w-2xl text-center">
             <span className="chip bg-primary-soft text-primary">AI Workflow</span>
             <h2 className="mt-4 font-display text-3xl font-bold sm:text-4xl">
-              How NeuroWake thinks
+              How VediQ thinks
             </h2>
           </div>
           <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -417,7 +417,7 @@ function Landing() {
             <span className="grid h-8 w-8 place-items-center rounded-lg btn-gradient">
               <BrainCircuit className="h-4 w-4" />
             </span>
-            <span className="font-display font-bold">NeuroWake</span>
+            <span className="font-display font-bold">VediQ</span>
           </div>
           <p className="text-sm text-muted-foreground">
             AI-Powered Smart Study &amp; Alarm Management · Capstone 2026

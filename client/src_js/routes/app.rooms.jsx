@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Crown, Mic, MicOff, Send, Timer, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
@@ -6,7 +6,7 @@ import { fadeUp, PageHeader, staggerContainer } from "@/components/kit";
 import { friends, leaderboard, roomChat, studyRooms } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/app/rooms")({
-    head: () => ({ meta: [{ title: "Study Rooms — NeuroWake" }] }),
+    head: () => ({ meta: [{ title: "Study Rooms — VediQ" }] }),
     component: RoomsPage,
 });
 function RoomsPage() {

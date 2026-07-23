@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -128,7 +128,7 @@ function useProfileSubjects() {
 }
 
 export const Route = createFileRoute("/app/analytics")({
-  head: () => ({ meta: [{ title: "Analytics — NeuroWake" }] }),
+  head: () => ({ meta: [{ title: "Analytics — VediQ" }] }),
   component: AnalyticsPage,
 });
 
@@ -622,7 +622,7 @@ function AnalyticsPage() {
   const [alarms] = useState(() => {
     if (typeof window !== "undefined") {
       try {
-        const raw = localStorage.getItem("neurowake_alarms_v2");
+        const raw = localStorage.getItem("VediQ_alarms_v2");
         if (raw) return JSON.parse(raw);
       } catch (_) {}
     }
@@ -714,7 +714,7 @@ function AnalyticsPage() {
           y = 20;
           // footer on each page
           setTxt("#94a3b8"); doc.setFontSize(8);
-          doc.text("NeuroWake · Confidential", M, PH - 8);
+          doc.text("VediQ · Confidential", M, PH - 8);
           doc.text(`Page ${doc.getNumberOfPages()}`, PW - M, PH - 8, { align: "right" });
           setTxt("#1e293b");
         }
@@ -755,7 +755,7 @@ function AnalyticsPage() {
 
       // App name
       setTxt("#ffffff"); doc.setFontSize(22); doc.setFont("helvetica", "bold");
-      doc.text("NeuroWake", M, 18);
+      doc.text("VediQ", M, 18);
       doc.setFontSize(10); doc.setFont("helvetica", "normal");
       doc.text("AI-Powered Study Analytics", M, 25);
 
@@ -1001,7 +1001,7 @@ function AnalyticsPage() {
       checkPage(25);
       setFill("#ede9fe"); doc.roundedRect(M, y, CW, 18, 3, 3, "F");
       setTxt("#6366f1"); doc.setFontSize(9); doc.setFont("helvetica", "bold");
-      doc.text("💡 NeuroWake Insight", M + 4, y + 6);
+      doc.text("💡 VediQ Insight", M + 4, y + 6);
       setTxt("#4c1d95"); doc.setFontSize(8); doc.setFont("helvetica", "normal");
       const tip = avgFocusTrend >= 75
         ? "Excellent focus! Maintain your sleep schedule and session length."
@@ -1016,11 +1016,11 @@ function AnalyticsPage() {
         doc.setPage(i);
         setDraw("#e2e8f0"); doc.setLineWidth(0.3); doc.line(M, PH - 14, PW - M, PH - 14);
         setTxt("#94a3b8"); doc.setFontSize(8); doc.setFont("helvetica", "normal");
-        doc.text("NeuroWake · AI Smart Study Planner", M, PH - 8);
+        doc.text("VediQ · AI Smart Study Planner", M, PH - 8);
         doc.text(`Page ${i} of ${totalPages}`, PW - M, PH - 8, { align: "right" });
       }
 
-      const fileName = `NeuroWake_Weekly_Report_${now.toISOString().split("T")[0]}.pdf`;
+      const fileName = `VediQ_Weekly_Report_${now.toISOString().split("T")[0]}.pdf`;
       doc.save(fileName);
     } catch (err) {
       console.error("PDF export failed:", err);

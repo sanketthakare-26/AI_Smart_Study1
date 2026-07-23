@@ -1,4 +1,4 @@
-import { QueryClientProvider } from "@tanstack/react-query";
+﻿import { QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts, } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
 function NotFoundComponent() {
@@ -47,13 +47,13 @@ export const Route = createRootRouteWithContext()({
         meta: [
             { charSet: "utf-8" },
             { name: "viewport", content: "width=device-width, initial-scale=1" },
-            { title: "NeuroWake — AI Smart Study & Alarm System" },
+            { title: "VediQ — AI Smart Study & Alarm System" },
             {
                 name: "description",
                 content: "An alarm that understands your brain, not just your clock. AI study planning, smart alarms, and learning analytics.",
             },
-            { name: "author", content: "NeuroWake" },
-            { property: "og:title", content: "NeuroWake — AI Smart Study & Alarm System" },
+            { name: "author", content: "VediQ" },
+            { property: "og:title", content: "VediQ — AI Smart Study & Alarm System" },
             {
                 property: "og:description",
                 content: "AI-powered smart alarms, study planning, and learning analytics.",

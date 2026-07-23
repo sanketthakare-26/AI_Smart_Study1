@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -185,7 +185,7 @@ app.get("/health", (req, res) => {
 
 // Root path fallback
 app.get("/", (req, res) => {
-  res.send("NeuroWake AI Study Alarm Backend API");
+  res.send("VediQ AI Study Alarm Backend API");
 });
 
 // Error handling middleware
@@ -196,5 +196,5 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 
 // Start listening
 httpServer.listen(PORT, () => {
-  console.log(`🚀 NeuroWake backend running on http://localhost:${PORT}`);
+  console.log(`🚀 VediQ backend running on http://localhost:${PORT}`);
 });

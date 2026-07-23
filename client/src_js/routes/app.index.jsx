@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AlarmClock, ArrowRight, CheckCircle2, Circle, Flame, Moon, Sparkles, Timer, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useCurrentUser, getGreeting, getTodayLabel } from "@/hooks/use-current-user";
 
 export const Route = createFileRoute("/app/")({
-    head: () => ({ meta: [{ title: "Dashboard — NeuroWake" }] }),
+    head: () => ({ meta: [{ title: "Dashboard — VediQ" }] }),
     component: Dashboard,
 });
 

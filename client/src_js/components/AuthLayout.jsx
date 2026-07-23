@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+﻿import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { BrainCircuit } from "lucide-react";
 export function AuthLayout({ title, subtitle, children, footer }) {
@@ -12,7 +12,7 @@ export function AuthLayout({ title, subtitle, children, footer }) {
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary-foreground/15 backdrop-blur">
               <BrainCircuit className="h-5 w-5"/>
             </span>
-            <span className="font-display text-xl font-bold">NeuroWake</span>
+            <span className="font-display text-xl font-bold">VediQ</span>
           </Link>
           <div>
             <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="font-display text-4xl font-bold leading-tight">
@@ -33,7 +33,7 @@ export function AuthLayout({ title, subtitle, children, footer }) {
             <span className="grid h-9 w-9 place-items-center rounded-xl btn-gradient">
               <BrainCircuit className="h-5 w-5"/>
             </span>
-            <span className="font-display text-lg font-bold">NeuroWake</span>
+            <span className="font-display text-lg font-bold">VediQ</span>
           </Link>
           <h1 className="font-display text-3xl font-bold">{title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>

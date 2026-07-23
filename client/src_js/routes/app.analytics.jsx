@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -19,7 +19,7 @@ import { mlApi } from "@/api/client.js";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
 export const Route = createFileRoute("/app/analytics")({
-  head: () => ({ meta: [{ title: "Analytics — NeuroWake" }] }),
+  head: () => ({ meta: [{ title: "Analytics — VediQ" }] }),
   component: AnalyticsPage,
 });
 
@@ -462,7 +462,7 @@ function AnalyticsPage() {
   const [alarms] = useState(() => {
     if (typeof window !== "undefined") {
       try {
-        const raw = localStorage.getItem("neurowake_alarms_v2");
+        const raw = localStorage.getItem("VediQ_alarms_v2");
         if (raw) return JSON.parse(raw);
       } catch (_) {}
     }

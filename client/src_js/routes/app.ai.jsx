@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { FileText, Layers, ListChecks, MessageSquareText, Send, Sparkles, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -6,7 +6,7 @@ import { PageHeader, ThinkingDots } from "@/components/kit";
 import { aiApi } from "@/services/api";
 import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/app/ai")({
-    head: () => ({ meta: [{ title: "AI Tools — NeuroWake" }] }),
+    head: () => ({ meta: [{ title: "AI Tools — VediQ" }] }),
     component: AiToolsPage,
 });
 const tabs = [

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -10,7 +10,7 @@ import { fadeUp, PageHeader } from "@/components/kit";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/profile")({
-  head: () => ({ meta: [{ title: "My Profile — NeuroWake" }] }),
+  head: () => ({ meta: [{ title: "My Profile — VediQ" }] }),
   component: ProfilePage,
 });
 

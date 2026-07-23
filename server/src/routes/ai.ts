@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+﻿import { Router, Request, Response } from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const router = Router();
@@ -31,7 +31,7 @@ Provide 3-5 key focus areas, study slot recommendations, and specific topics to 
       return res.status(200).json({ ok: true, planId: "plan_" + Date.now(), plan: text });
     } else {
       // Simulation mode
-      const simulatedText = `**NeuroWake AI Study Planner (Simulation Mode)**
+      const simulatedText = `**VediQ AI Study Planner (Simulation Mode)**
 Based on your goals: *${goals}*, here is your optimized revision plan:
 1. **Morning Focus Blocks (06:45 - 08:15):** Data Structures (Tree rotations, Graph traversals) - *Peak brain efficiency slots*.
 2. **Afternoon Spaced Repetition (14:30 - 15:15):** Machine Learning (Gradient boosting, regularization formulas).
@@ -187,7 +187,7 @@ router.post("/chatbot", async (req: Request, res: Response) => {
         history: formattedHistory,
         systemInstruction: {
           role: "user",
-          parts: [{ text: "You are NeuroWake's AI Study Assistant. Help the student with conceptual study questions, scheduling advice, active recall, and study science. Keep replies engaging, encouraging, and under 4 sentences." }],
+          parts: [{ text: "You are VediQ's AI Study Assistant. Help the student with conceptual study questions, scheduling advice, active recall, and study science. Keep replies engaging, encouraging, and under 4 sentences." }],
         },
       });
 

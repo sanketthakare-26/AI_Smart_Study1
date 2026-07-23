@@ -1,10 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { AuthLayout } from "@/components/AuthLayout";
 export const Route = createFileRoute("/otp")({
-    head: () => ({ meta: [{ title: "Verify email — NeuroWake" }] }),
+    head: () => ({ meta: [{ title: "Verify email — VediQ" }] }),
     component: OtpPage,
 });
 function OtpPage() {

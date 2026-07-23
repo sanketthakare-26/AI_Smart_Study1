@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+﻿import nodemailer from "nodemailer";
 import { User } from "../models/User.js";
 import { StudySession } from "../models/StudySession.js";
 
@@ -53,7 +53,7 @@ export async function sendDailyDigest(userEmail: string, userName: string) {
 
     const emailHtml = `
       <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-        <h2 style="color: #4F46E5;">📈 Your NeuroWake Daily Study Digest</h2>
+        <h2 style="color: #4F46E5;">📈 Your VediQ Daily Study Digest</h2>
         <p>Hi ${userName},</p>
         <p>Here is your active study recap for today:</p>
         <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
@@ -78,13 +78,13 @@ export async function sendDailyDigest(userEmail: string, userName: string) {
             <td style="padding: 10px; text-align: right; border-bottom: 1px solid #E5E7EB; font-weight: bold; color: #F59E0B;">${user?.streak || 0} days</td>
           </tr>
         </table>
-        <p style="margin-top: 20px; font-size: 13px; color: #6B7280; text-align: center;">Keep up the deep focus! NeuroWake smart alarm will pick your lightest sleep window tomorrow.</p>
+        <p style="margin-top: 20px; font-size: 13px; color: #6B7280; text-align: center;">Keep up the deep focus! VediQ smart alarm will pick your lightest sleep window tomorrow.</p>
       </div>
     `;
 
     // 3. Send Mail
     const info = await transporter.sendMail({
-      from: '"NeuroWake AI Advisor" <advisor@neurowake.edu>',
+      from: '"VediQ AI Advisor" <advisor@VediQ.edu>',
       to: userEmail,
       subject: `📚 Daily Study Recap - ${new Date().toLocaleDateString()}`,
       html: emailHtml,
@@ -101,7 +101,7 @@ export async function sendDailyDigest(userEmail: string, userName: string) {
 
 // Start recurring cron digests (Runs simulated check every 6 hours)
 export function startCron() {
-  console.log("⏰ NeuroWake cron scheduler initialized for study digests...");
+  console.log("⏰ VediQ cron scheduler initialized for study digests...");
   setInterval(async () => {
     try {
       const users = await User.find();

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Crown, Mic, MicOff, Send, Timer, UserPlus, Users, Plus,
@@ -11,7 +11,7 @@ import { fadeUp, PageHeader, staggerContainer } from "@/components/kit";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/rooms")({
-  head: () => ({ meta: [{ title: "Study Rooms — NeuroWake" }] }),
+  head: () => ({ meta: [{ title: "Study Rooms — VediQ" }] }),
   component: RoomsPage,
 });
 
@@ -177,7 +177,7 @@ function RoomsPage() {
     .map((u, i) => ({ ...u, rank: i + 1 }));
 
   const inviteUrl = typeof window !== "undefined" ? window.location.href : "";
-  const waMsg = encodeURIComponent(`Study with me on NeuroWake! My ID: ${myUserCode} — ${inviteUrl}`);
+  const waMsg = encodeURIComponent(`Study with me on VediQ! My ID: ${myUserCode} — ${inviteUrl}`);
 
   return (
     <div className="space-y-6">
@@ -486,7 +486,7 @@ function RoomsPage() {
                     className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700">
                     <MessageCircle className="h-4 w-4" /> WhatsApp
                   </a>
-                  <button onClick={() => { navigator.clipboard.writeText(`My NeuroWake ID: ${myUserCode}`); toast.success("Copied!"); }}
+                  <button onClick={() => { navigator.clipboard.writeText(`My VediQ ID: ${myUserCode}`); toast.success("Copied!"); }}
                     className="flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/60 py-2.5 text-xs font-bold transition-colors hover:bg-muted">
                     <Share2 className="h-4 w-4" /> Copy Text
                   </button>

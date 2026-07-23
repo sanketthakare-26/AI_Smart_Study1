@@ -1,6 +1,6 @@
-<div align="center">
+﻿<div align="center">
 
-<img src="https://img.shields.io/badge/NeuroWake-AI%20Smart%20Study%20%26%20Alarm%20System-6366f1?style=for-the-badge&logo=brain&logoColor=white" />
+<img src="https://img.shields.io/badge/VediQ-AI%20Smart%20Study%20%26%20Alarm%20System-6366f1?style=for-the-badge&logo=brain&logoColor=white" />
 
 # 🧠 VediQ — AI Smart Study Planner
 
@@ -22,7 +22,7 @@ Adaptive wake prediction · AI study planning · Focus analytics · Real-time co
 
 ## 📌 Overview
 
-**NeuroWake** is a full-stack capstone project that combines a custom ML sleep model, Google Gemini AI, and real-time collaboration to help students optimise both their mornings and their study sessions.
+**VediQ** is a full-stack capstone project that combines a custom ML sleep model, Google Gemini AI, and real-time collaboration to help students optimise both their mornings and their study sessions.
 
 - 🔔 **Smart Alarms** — ML model predicts your lightest sleep phase and rings at the optimal moment within your chosen wake window
 - 🎯 **Snooze Risk Score** — Live prediction before each alarm triggers progressive volume and puzzle dismissal when risk is high

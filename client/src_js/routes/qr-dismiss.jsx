@@ -1,11 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, ArrowRight, Hourglass } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/qr-dismiss")({
   head: () => ({
-    meta: [{ title: "Alarm Dismissed — NeuroWake" }],
+    meta: [{ title: "Alarm Dismissed — VediQ" }],
   }),
   component: QrDismissPage,
 });
@@ -15,7 +15,7 @@ function QrDismissPage() {
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
-    localStorage.setItem("neurowake_dismiss_signal", Date.now().toString());
+    localStorage.setItem("VediQ_dismiss_signal", Date.now().toString());
     try {
       if (window.activeAlarmSound) {
         window.activeAlarmSound.stop();

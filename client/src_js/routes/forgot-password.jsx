@@ -1,11 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { AuthInput, AuthLayout } from "@/components/AuthLayout";
 export const Route = createFileRoute("/forgot-password")({
-    head: () => ({ meta: [{ title: "Reset password — NeuroWake" }] }),
+    head: () => ({ meta: [{ title: "Reset password — VediQ" }] }),
     component: ForgotPage,
 });
 function ForgotPage() {

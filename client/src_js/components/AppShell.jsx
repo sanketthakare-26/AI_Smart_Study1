@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -29,7 +29,7 @@ function SidebarContent({ onNavigate }) {
         <span className="grid h-9 w-9 place-items-center rounded-xl btn-gradient">
           <BrainCircuit className="h-5 w-5" />
         </span>
-        <span className="font-display text-lg font-bold">NeuroWake</span>
+        <span className="font-display text-lg font-bold">VediQ</span>
       </Link>
 
       <nav className="flex-1 space-y-1 px-3">

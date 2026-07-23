@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -7,8 +7,8 @@ import { authApi } from "@/services/api";
 export const Route = createFileRoute("/register")({
     head: () => ({
         meta: [
-            { title: "Create account — NeuroWake" },
-            { name: "description", content: "Create your NeuroWake account and let AI fix your mornings." },
+            { title: "Create account — VediQ" },
+            { name: "description", content: "Create your VediQ account and let AI fix your mornings." },
         ],
     }),
     component: RegisterPage,

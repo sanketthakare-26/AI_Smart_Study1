@@ -1,4 +1,4 @@
-var __name = (target, value) => {
+﻿var __name = (target, value) => {
   try {
     Object.defineProperty(target, "name", { value, configurable: true });
   } catch (e) {}
@@ -16,7 +16,7 @@ import * as _utils from "@/lib/utils";
 import { useCurrentUser, getGreeting, getTodayLabel } from "@/hooks/use-current-user";
 
 const Route = _reactrouter.createFileRoute("/app/")({
-      head: () => ({ meta: [{ title: "Dashboard \u2014 NeuroWake" }] }),
+      head: () => ({ meta: [{ title: "Dashboard \u2014 VediQ" }] }),
       component: Dashboard
     });
     
@@ -25,7 +25,7 @@ const Route = _reactrouter.createFileRoute("/app/")({
       const [alarms] = _react.useState(() => {
         if (typeof window !== "undefined") {
           try {
-            const raw = localStorage.getItem("neurowake_alarms_v2");
+            const raw = localStorage.getItem("VediQ_alarms_v2");
             if (raw) return JSON.parse(raw);
           } catch (_) {}
         }
