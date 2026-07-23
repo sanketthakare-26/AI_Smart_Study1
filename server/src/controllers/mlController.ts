@@ -23,51 +23,27 @@ export const predictSnoozeRisk = async (req: Request, res: Response) => {
       snooze_count_last_7_days = 1,
       sleep_duration_prev_night = 7,
       self_reported_energy = 3,
-      hour_of_alarm_decimal = 7,
-      study_session_pending = 0,
     } = req.body || {};
 
-    // Realistic scoring: weighted sum (0–100)
-    let score = 0;
+    const sleep = Number(sleep_duration_prev_night);
+    const snoozes = Number(snooze_count_last_7_days);
+    const energy = Number(self_reported_energy);
 
-    // Sleep contribution (weight: 35)
-    if (sleep_duration_prev_night < 4)      score += 35;
-    else if (sleep_duration_prev_night < 5.5) score += 25;
-    else if (sleep_duration_prev_night < 6.5) score += 15;
-    else if (sleep_duration_prev_night < 7.5) score += 5;
+    // Rule: High risk (QR Scanner required) when ALL 3 satisfied: sleep > 8, snoozes >= 7, energy > 3
+    const isHighRisk = (sleep > 8) && (snoozes >= 7) && (energy > 3);
 
-    // Past snooze history (weight: 30)
-    if (snooze_count_last_7_days >= 5)      score += 30;
-    else if (snooze_count_last_7_days >= 3)  score += 20;
-    else if (snooze_count_last_7_days >= 1)  score += 10;
-
-    // Energy level contribution (weight: 20, scale 1–5)
-    const energyPenalty = Math.round((5 - self_reported_energy) * 4);
-    score += energyPenalty;
-
-    // Early alarm bonus risk (weight: 10)
-    if (hour_of_alarm_decimal < 5.5)  score += 10;
-    else if (hour_of_alarm_decimal < 6.5) score += 6;
-    else if (hour_of_alarm_decimal < 7.5) score += 3;
-
-    // Pending study session reduces risk slightly
-    if (study_session_pending === 1) score = Math.max(0, score - 5);
-
-    const snooze_probability = Math.min(95, Math.max(5, score));
-    const risk_level = snooze_probability >= 60 ? "high"
-                     : snooze_probability >= 35 ? "medium"
-                     : "low";
+    const snooze_probability = isHighRisk ? 88 : 20;
+    const risk_level = isHighRisk ? "high" : "low";
 
     return res.status(200).json({
       snooze_probability,
       risk_level,
-      will_snooze: snooze_probability >= 50,
+      will_snooze: isHighRisk,
       source: "server-fallback",
       factors: [
-        `Sleep: ${sleep_duration_prev_night}h`,
-        `Past Snoozes (7d): ${snooze_count_last_7_days}`,
-        `Energy Level: ${self_reported_energy}/5`,
-        `Alarm Time: ${Math.floor(hour_of_alarm_decimal)}:${hour_of_alarm_decimal % 1 === 0.5 ? "30" : "00"}`,
+        `Sleep: ${sleep}h`,
+        `Past Snoozes (7d): ${snoozes}`,
+        `Energy Level: ${energy}/5`,
       ],
     });
   }

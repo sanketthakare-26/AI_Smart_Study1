@@ -1092,31 +1092,20 @@ function RingingOverlay({ alarm, onDismiss, onIncreaseVolume }) {
       day_of_week:              days[now.getDay()],
     };
     const calculateLocalSnoozeRisk = () => {
-      const snoozes = alarm?.snoozeCount ?? 0;
-      const sleep = alarm?.sleepHours ?? 7;
-      const energy = alarm?.energyLevel ?? 4;
+      const snoozes = Number(alarm?.snoozeCount ?? 0);
+      const sleep = Number(alarm?.sleepHours ?? 7);
+      const energy = Number(alarm?.energyLevel ?? 3);
 
-      // High risk rule: Triggered specifically when sleep < 3 AND energy <= 2 (or heavy snooze history)
-      const isHighRiskCondition = (sleep < 3 && energy <= 2) || (sleep < 4 && snoozes >= 3);
+      // High risk rule (QR Scanner Required): Satisfies ALL THREE: sleep > 8 AND snoozes >= 7 AND energy > 3
+      const isHighRiskCondition = (sleep > 8) && (snoozes >= 7) && (energy > 3);
 
-      let prob = 20; // Default Low Risk
-      let risk_level = "low";
-
-      if (isHighRiskCondition) {
-        prob = 88;
-        risk_level = "high";
-      } else if (sleep < 5 || energy <= 2 || snoozes >= 2) {
-        prob = 45;
-        risk_level = "medium";
-      } else {
-        prob = 20;
-        risk_level = "low";
-      }
+      const prob = isHighRiskCondition ? 88 : 20;
+      const risk_level = isHighRiskCondition ? "high" : "low";
 
       return {
         snooze_probability: prob,
         risk_level,
-        will_snooze: prob >= 50,
+        will_snooze: isHighRiskCondition,
       };
     };
 

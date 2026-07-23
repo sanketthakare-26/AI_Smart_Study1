@@ -127,25 +127,29 @@ def predict_snooze(data: SnoozeRiskRequest):
       will_snooze        – true / false (predicted label)
       message            – motivational message for the alarm screen
     """
-    df = _build_snooze_row(data)
-    proba       = float(snooze_model.predict_proba(df)[0][1])  # P(snooze)
-    will_snooze = bool(snooze_model.predict(df)[0] == 1)
+    sleep = float(data.sleep_duration_prev_night)
+    snoozes = int(data.snooze_count_last_7_days)
+    energy = int(data.self_reported_energy)
 
-    if proba >= 0.65:
+    # High risk rule: Satisfies ALL THREE: sleep > 8 AND snoozes >= 7 AND energy > 3
+    is_high_risk = (sleep > 8) and (snoozes >= 7) and (energy > 3)
+
+    if is_high_risk:
         risk_level = "high"
-        message    = "⚠️ High snooze risk detected! A challenge is required to dismiss."
-    elif proba >= 0.40:
-        risk_level = "medium"
-        message    = "🟡 Moderate snooze risk. Stay committed to your study session!"
+        proba = 88.0
+        will_snooze = True
+        message = "⚠️ High snooze risk detected! QR Scanner scan required to stop alarm."
     else:
         risk_level = "low"
-        message    = "✅ Low snooze risk. You're ready to go!"
+        proba = 20.0
+        will_snooze = False
+        message = "✅ Low snooze risk. Click Dismiss Alarm to stop."
 
     return {
-        "snooze_probability": round(proba * 100, 1),
-        "risk_level":         risk_level,
-        "will_snooze":        will_snooze,
-        "message":            message,
+        "snooze_probability": proba,
+        "risk_level": risk_level,
+        "will_snooze": will_snooze,
+        "message": message,
     }
 
 
