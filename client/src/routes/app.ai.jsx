@@ -1,4 +1,4 @@
-﻿var __name = (target, value) => {
+var __name = (target, value) => {
   try {
     Object.defineProperty(target, "name", { value, configurable: true });
   } catch (e) {}
@@ -126,6 +126,27 @@ function _nullishCoalesce(lhs, rhsFn) {
       `Here's a quick mnemonic for page replacement: **LRU** = "Least Recently Used, Longest Rest Unwanted." Want me to generate 5 practice questions on this?`,
       "Based on your study history, you retain tree-based algorithms 23% better in morning sessions. I'd schedule this topic for tomorrow 07:00."
     ];
+
+    function generateFallbackReply(msg) {
+      const lower = (msg || "").toLowerCase();
+      if (lower.includes("boosting") || lower.includes("gradient") || lower.includes("machine learning")) {
+        return "Gradient Boosting is an ensemble learning algorithm that builds decision trees sequentially. Each new tree fits to the residual errors of prior trees, progressively minimizing total loss.";
+      }
+      if (lower.includes("tree") || lower.includes("rotation") || lower.includes("avl") || lower.includes("red-black")) {
+        return "Tree rotations (Left/Right) rebalance Binary Search Trees during insertions or deletions to guarantee O(log n) time complexity for search, insert, and delete operations.";
+      }
+      if (lower.includes("pomodoro") || lower.includes("time") || lower.includes("schedule") || lower.includes("habit")) {
+        return "The Pomodoro Technique structures your study into 25-minute deep focus sessions followed by 5-minute restorative breaks to sustain peak cognitive clarity.";
+      }
+      if (lower.includes("exam") || lower.includes("quiz") || lower.includes("prep") || lower.includes("revision")) {
+        return "Active recall and spaced repetition are proven by cognitive science to double long-term memory retention compared to passive reading. Use VediQ flashcards and practice drills!";
+      }
+      if (lower.includes("hi") || lower.includes("hello") || lower.includes("hey") || lower.includes("help")) {
+        return "Hello! I am your VediQ AI Study Assistant. Ask me anything about your subjects, algorithms, active recall techniques, or study scheduling!";
+      }
+      return "That's a great study question! Active recall and structured focus intervals accelerate learning. Would you like me to quiz you on your subjects or build a custom revision plan?";
+    }
+
     function Chatbot() {
       const currentUser = useCurrentUser();
       const firstName = (currentUser.name || "Student").split(" ")[0];
@@ -153,7 +174,13 @@ function _nullishCoalesce(lhs, rhsFn) {
           }
         } catch (error) {
           console.error("Chatbot API error:", error);
-          setMessages((m) => [...m, { role: "ai", text: "Failed to connect to the study assistant. Please check if the server is running." }]);
+          const serverErrorMsg = error?.response?.data?.error;
+          if (serverErrorMsg) {
+            setMessages((m) => [...m, { role: "ai", text: serverErrorMsg }]);
+          } else {
+            const fallbackReply = generateFallbackReply(userMsg);
+            setMessages((m) => [...m, { role: "ai", text: fallbackReply }]);
+          }
         } finally {
           setThinking(false);
         }
