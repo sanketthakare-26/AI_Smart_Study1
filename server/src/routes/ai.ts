@@ -1,4 +1,4 @@
-﻿import { Router, Request, Response } from "express";
+import { Router, Request, Response } from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const router = Router();
@@ -204,8 +204,20 @@ router.post("/chatbot", async (req: Request, res: Response) => {
       }
       return res.status(200).json({ ok: true, reply });
     }
-  } catch (error) {
-    console.error("AI Chatbot error:", error);
+  } catch (error: any) {
+    const errMsg = error?.message || String(error);
+    console.error("AI Chatbot error:", errMsg);
+
+    // Detect common Gemini API failure reasons for easier debugging
+    if (errMsg.includes("API_KEY_INVALID") || errMsg.includes("401") || errMsg.includes("403")) {
+      return res.status(500).json({ error: "Gemini API key is invalid or expired. Please update GEMINI_API_KEY." });
+    }
+    if (errMsg.includes("quota") || errMsg.includes("429")) {
+      return res.status(429).json({ error: "Gemini API quota exceeded. Please try again later or use a new key." });
+    }
+    if (errMsg.includes("not found") || errMsg.includes("404")) {
+      return res.status(500).json({ error: "Gemini model not found. Check GEMINI_MODEL in your .env." });
+    }
     return res.status(500).json({ error: "Failed to connect to AI assistant" });
   }
 });
