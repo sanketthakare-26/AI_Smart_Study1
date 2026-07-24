@@ -1,4 +1,4 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { AlarmClock, ArrowRight, CheckCircle2, Circle, Flame, Moon, Sparkles, Timer, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -17,14 +17,81 @@ function Dashboard() {
     const user = useCurrentUser();
     const nextAlarm = alarms.find((a) => a.enabled);
 
-    // Load subjects from localStorage
-    const [subjectList] = useState(() => {
+    // Load subjects from localStorage & sync with profile
+    const [subjectList, setSubjectList] = useState(() => {
         if (typeof window !== "undefined") {
             const stored = localStorage.getItem("nw_subjects");
-            if (stored) return JSON.parse(stored);
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                } catch (_) {}
+            }
+            const storedProfile = localStorage.getItem("nw_profile_full");
+            if (storedProfile) {
+                try {
+                    const profile = JSON.parse(storedProfile);
+                    if (Array.isArray(profile.courses) && profile.courses.length > 0) {
+                        return profile.courses.map((c, idx) => ({
+                            id: c.id || `ps_${idx}`,
+                            name: c.name,
+                            color: c.color || "var(--chart-1)",
+                            hours: Number(c.hours) || 10,
+                            mastery: Number(c.mastery) ?? 50,
+                            status: c.status || "preparation",
+                        }));
+                    }
+                } catch (_) {}
+            }
         }
-        return subjects;
+        return [];
     });
+
+    useEffect(() => {
+        const updateSubjects = () => {
+            if (typeof window === "undefined") return;
+            try {
+                const stored = localStorage.getItem("nw_subjects");
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        setSubjectList(parsed);
+                        return;
+                    }
+                }
+                const storedProfile = localStorage.getItem("nw_profile_full");
+                if (storedProfile) {
+                    const profile = JSON.parse(storedProfile);
+                    if (Array.isArray(profile.courses) && profile.courses.length > 0) {
+                        const synced = profile.courses.map((c, idx) => ({
+                            id: c.id || `ps_${idx}`,
+                            name: c.name,
+                            color: c.color || "var(--chart-1)",
+                            hours: Number(c.hours) || 10,
+                            mastery: Number(c.mastery) ?? 50,
+                            status: c.status || "preparation",
+                        }));
+                        setSubjectList(synced);
+                    }
+                }
+            } catch (_) {}
+        };
+
+        const onStorage = (e) => {
+            if (!e.key || e.key === "nw_subjects" || e.key === "nw_profile_full") {
+                updateSubjects();
+            }
+        };
+
+        window.addEventListener("storage", onStorage);
+        window.addEventListener("nw_subjects_updated", updateSubjects);
+        window.addEventListener("focus", updateSubjects);
+        return () => {
+            window.removeEventListener("storage", onStorage);
+            window.removeEventListener("nw_subjects_updated", updateSubjects);
+            window.removeEventListener("focus", updateSubjects);
+        };
+    }, []);
 
     const getDaysUntil = (dateStr) => {
         if (!dateStr) return null;
