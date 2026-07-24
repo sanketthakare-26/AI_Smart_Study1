@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { PageHeader, ThinkingDots } from "@/components/kit";
 import { aiApi } from "@/services/api";
 import { cn } from "@/lib/utils";
-import { clientChatbot } from "@/lib/gemini-client";
+import { clientChatbot, clientGenerateQuiz, clientSummarizeNotes } from "@/lib/gemini-client";
 export const Route = createFileRoute("/app/ai")({
     head: () => ({ meta: [{ title: "AI Tools — VediQ" }] }),
     component: AiToolsPage,
@@ -144,7 +144,12 @@ function Summarizer({ onGenerateQuiz }) {
         setState("loading");
         try {
             const fileText = await extractTextFromFile(file);
-            const res = await aiApi.summarizeNotes({ text: fileText, fileName: file.name });
+            let res;
+            try {
+                res = await clientSummarizeNotes({ text: fileText, fileName: file.name });
+            } catch (e) {
+                res = await aiApi.summarizeNotes({ text: fileText, fileName: file.name });
+            }
             setSummaryText(res?.summary || "No summary generated.");
         } catch (err) {
             console.error("Summarizer error:", err);
@@ -191,15 +196,10 @@ function Summarizer({ onGenerateQuiz }) {
     </div>);
 }
 /* ---------------- Quiz ---------------- */
-const quizQuestions = [
-    { q: "In gradient boosting, each new tree is fit to…", options: ["The raw labels", "The residual errors of the current ensemble", "A random bootstrap sample only", "The features with highest variance"], answer: 1 },
-    { q: "Which parameter most directly controls shrinkage?", options: ["max_depth", "n_estimators", "learning_rate", "min_samples_leaf"], answer: 2 },
-    { q: "Boosting primarily reduces…", options: ["Bias", "Variance", "Both equally", "Neither"], answer: 0 },
-];
 function QuizGen({ initialContext }) {
     const [started, setStarted] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [questions, setQuestions] = useState(quizQuestions);
+    const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const start = async () => {
@@ -207,14 +207,18 @@ function QuizGen({ initialContext }) {
         try {
             const payload = initialContext 
                 ? { context: initialContext, count: 3 }
-                : { topic: "Gradient Boosting", count: 3 };
-            const res = await aiApi.generateQuiz(payload);
+                : { topic: "General Knowledge", count: 3 };
+            let res;
+            try {
+                res = await clientGenerateQuiz(payload);
+            } catch (e) {
+                res = await aiApi.generateQuiz(payload);
+            }
             if (res?.quiz && Array.isArray(res.quiz) && res.quiz.length > 0) {
-                setQuestions(res.quiz.map(q => ({ q: q.question, options: q.options, answer: q.answerIndex })));
+                setQuestions(res.quiz.map(q => ({ q: q.question || q.q, options: q.options, answer: q.answerIndex ?? q.answer ?? 0 })));
             }
         } catch (err) {
             console.error("Quiz error:", err);
-            // fall back to static questions
         } finally {
             setAnswers({});
             setSubmitted(false);

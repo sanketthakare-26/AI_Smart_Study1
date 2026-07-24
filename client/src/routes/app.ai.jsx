@@ -13,7 +13,7 @@ import * as _kit from "@/components/kit";
 import * as _api from "@/services/api";
 import * as _utils from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { clientChatbot } from "@/lib/gemini-client";
+import { clientChatbot, clientGenerateQuiz, clientSummarizeNotes } from "@/lib/gemini-client";
 
 function _nullishCoalesce(lhs, rhsFn) {
       if (lhs != null) {
@@ -246,7 +246,13 @@ function _nullishCoalesce(lhs, rhsFn) {
         setState("loading");
         try {
           const fileText = await extractTextFromFile(file);
-          const res = await _api.aiApi.summarizeNotes({ text: fileText, fileName: file.name });
+          // Call client API first, fall back to backend API if needed
+          let res;
+          try {
+            res = await clientSummarizeNotes({ text: fileText, fileName: file.name });
+          } catch (e) {
+            res = await _api.aiApi.summarizeNotes({ text: fileText, fileName: file.name });
+          }
           if (res && res.summary) {
             setSummaryText(res.summary);
           } else {
@@ -303,11 +309,6 @@ function _nullishCoalesce(lhs, rhsFn) {
       ] }, void 0, true);
     }
 
-    const quizQuestions = [
-      { q: "In gradient boosting, each new tree is fit to\u2026", options: ["The raw labels", "The residual errors of the current ensemble", "A random bootstrap sample only", "The features with highest variance"], answer: 1 },
-      { q: "Which parameter most directly controls shrinkage?", options: ["max_depth", "n_estimators", "learning_rate", "min_samples_leaf"], answer: 2 },
-      { q: "Boosting primarily reduces\u2026", options: ["Bias", "Variance", "Both equally", "Neither"], answer: 0 }
-    ];
     function QuizGen({ initialContext }) {
       const [started, setStarted] = _react.useState(false);
       const [loading, setLoading] = _react.useState(false);
@@ -319,21 +320,25 @@ function _nullishCoalesce(lhs, rhsFn) {
         try {
           const payload = initialContext 
             ? { context: initialContext, count: 3 }
-            : { topic: "Gradient Boosting", count: 3 };
-          const res = await _api.aiApi.generateQuiz(payload);
+            : { topic: "General Knowledge", count: 3 };
+
+          let res;
+          try {
+            res = await clientGenerateQuiz(payload);
+          } catch (e) {
+            res = await _api.aiApi.generateQuiz(payload);
+          }
+
           if (res && res.quiz && Array.isArray(res.quiz)) {
             const formatted = res.quiz.map(q => ({
-              q: q.question,
+              q: q.question || q.q,
               options: q.options,
-              answer: q.answerIndex
+              answer: q.answerIndex ?? q.answer ?? 0
             }));
             setQuestions(formatted);
-          } else {
-            setQuestions(quizQuestions);
           }
         } catch (error) {
           console.error("Quiz generation error:", error);
-          setQuestions(quizQuestions);
         } finally {
           setAnswers({});
           setSubmitted(false);
@@ -341,6 +346,7 @@ function _nullishCoalesce(lhs, rhsFn) {
           setStarted(true);
         }
       }, "start");
+
       _react.useEffect(() => {
         if (initialContext) {
           start();

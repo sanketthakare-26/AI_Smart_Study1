@@ -1,4 +1,4 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -436,57 +436,104 @@ function FocusScoreCalculator({ onScoreCalculated }) {
   );
 }
 
-// ── Activity Calendar (LeetCode style 12 months with month gap separation) ────
+// ── Activity Calendar (GitHub style starting from July) ────
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function ActivityCalendar({ streakDays }) {
   const containerRef = useRef(null);
+  const [activityVersion, setActivityVersion] = useState(0);
 
-  // Load activity intensity log
+  // Auto update listener when new activity is recorded (e.g. in localStorage or window focus)
+  useEffect(() => {
+    const handleStorage = () => setActivityVersion(v => v + 1);
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", handleStorage);
+    };
+  }, []);
+
+  // Load activity intensity log dynamically (records user active hours/sessions/tasks)
   const activityMap = useMemo(() => {
     if (typeof window === "undefined") return new Map();
     try {
       const log = JSON.parse(localStorage.getItem("nw_activity_levels") || "{}");
-      const map = new Map(Object.entries(log));
-      
+      const map = new Map();
+
+      // Read activity intensity (0-4 or raw count)
+      Object.entries(log).forEach(([dateStr, levelOrCount]) => {
+        map.set(dateStr, Number(levelOrCount) || 0);
+      });
+
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      // Merge completed tasks / study plan logs into activity calculation
       const rawComp = localStorage.getItem("nw_completion_log");
       if (rawComp) {
         const comp = JSON.parse(rawComp);
         comp.forEach(d => {
-          if (!map.has(d) || map.get(d) === 0) {
-            map.set(d, 3); // Level 3 (High Green) when plan is completed
-          }
+          const current = map.get(d) || 0;
+          map.set(d, Math.max(current, 3)); // High activity level for completed plans
         });
+      }
+
+      // Automatically register active session level for today if active on web
+      if (!map.has(todayStr) || map.get(todayStr) === 0) {
+        map.set(todayStr, 2); // Default Medium Green level for active today
+        log[todayStr] = 2;
+        localStorage.setItem("nw_activity_levels", JSON.stringify(log));
       }
 
       return map;
     } catch (_) { return new Map(); }
-  }, []);
+  }, [activityVersion]);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Build 12 Month Blocks (last 12 months in order ending with current month)
+  // Build Month Blocks starting from July (start month) through current month
   const monthBlocks = useMemo(() => {
     const blocks = [];
     const currYear = today.getFullYear();
-    const currMonth = today.getMonth();
+    const currMonth = today.getMonth(); // 0-indexed
 
-    for (let m = 11; m >= 0; m--) {
-      const d = new Date(currYear, currMonth - m, 1);
-      const year = d.getFullYear();
-      const monthIndex = d.getMonth();
-      // Get all days in this month
+    // Application start month: July (month index 6) of current year (or previous year if before July)
+    let startYear = currYear;
+    let startMonth = 6; // July
+    if (currMonth < 6) {
+      startYear = currYear - 1; // July of previous year if current month is Jan-Jun
+    }
+
+    // Calculate total months to render from July (startMonth, startYear) to currMonth/currYear
+    let totalMonths = (currYear - startYear) * 12 + (currMonth - startMonth) + 1;
+    if (totalMonths < 1) totalMonths = 1;
+
+    for (let m = 0; m < totalMonths; m++) {
+      const yearOffset = Math.floor((startMonth + m) / 12);
+      const monthIndex = (startMonth + m) % 12;
+      const year = startYear + yearOffset;
+
       const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
       const days = [];
+
       for (let dayNum = 1; dayNum <= daysInMonth; dayNum++) {
         const dateObj = new Date(year, monthIndex, dayNum);
         const iso = dateObj.toISOString().split("T")[0];
-        const level = activityMap.get(iso) || 0; // 0 = Inactive (White)
+        const rawVal = activityMap.get(iso) || 0;
+
+        // Map activity metric to 0..4 intensity levels
+        let level = 0;
+        if (rawVal >= 4) level = 4;      // Very High Activity
+        else if (rawVal === 3) level = 3; // High Activity
+        else if (rawVal === 2) level = 2; // Medium Activity
+        else if (rawVal === 1) level = 1; // Low Activity
+        else level = 0;                  // No Activity
+
         const isToday = iso === today.toISOString().split("T")[0];
         const isFuture = dateObj > today;
-        days.push({ iso, level, isToday, isFuture, dateObj, dayNum, dayOfWeek: dateObj.getDay() });
+        days.push({ iso, rawVal, level, isToday, isFuture, dateObj, dayNum, dayOfWeek: dateObj.getDay() });
       }
 
       // Group days into 7-row columns (weeks)
@@ -514,33 +561,44 @@ function ActivityCalendar({ streakDays }) {
     }
 
     return blocks;
-  }, [activityMap]);
+  }, [activityMap, today]);
 
-  const scroll = (direction) => {
+  // Auto scroll to current month on mount
+  useEffect(() => {
     if (containerRef.current) {
-      const amount = direction === "left" ? -320 : 320;
-      containerRef.current.scrollBy({ left: amount, behavior: "smooth" });
+      containerRef.current.scrollLeft = containerRef.current.scrollWidth;
     }
-  };
+  }, [monthBlocks]);
 
   const totalActiveDays = Array.from(activityMap.values()).filter(l => l > 0).length;
-  const totalSubmissions = Array.from(activityMap.values()).reduce((acc, l) => acc + l, 0);
+  const totalSubmissions = Array.from(activityMap.values()).reduce((acc, l) => acc + (l > 0 ? 1 : 0), 0);
 
+  // Cell fill colors (entire cell background filled with solid/smooth green shade based on activity level)
   function cellColor(cell) {
     if (!cell) return "invisible"; // Empty grid padding
-    if (cell.isFuture) return "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 opacity-30 cursor-not-allowed";
-    
-    const isTodayRing = cell.isToday ? "ring-2 ring-emerald-500 ring-offset-1 z-10" : "";
+    if (cell.isFuture) return "bg-zinc-100 dark:bg-zinc-900/40 opacity-30 cursor-not-allowed";
 
-    // Inactive = White background
-    if (cell.level === 0) return cn("bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60", isTodayRing);
+    const isTodayRing = cell.isToday ? "ring-2 ring-emerald-500 ring-offset-1 ring-offset-card z-10" : "";
 
-    // Active = Green Shades based on level (including today)
-    if (cell.level === 4) return cn("bg-emerald-600 shadow-sm hover:bg-emerald-500 text-white", isTodayRing); // Highest Dark Green
-    if (cell.level === 3) return cn("bg-emerald-500 hover:bg-emerald-400 text-white", isTodayRing);            // High Green
-    if (cell.level === 2) return cn("bg-emerald-400/80 hover:bg-emerald-400 text-white", isTodayRing);         // Medium Green
-    if (cell.level === 1) return cn("bg-emerald-300 hover:bg-emerald-400 dark:bg-emerald-800", isTodayRing);   // Light Green
-    return cn("bg-white dark:bg-zinc-800 border border-zinc-200", isTodayRing);
+    // Fill background color completely for each activity level (NO border-only styling)
+    switch (cell.level) {
+      case 4:
+        // Darkest green (Very high activity)
+        return cn("bg-emerald-800 dark:bg-emerald-500 text-white hover:bg-emerald-900 dark:hover:bg-emerald-400 shadow-sm", isTodayRing);
+      case 3:
+        // Dark green (High activity)
+        return cn("bg-emerald-600 dark:bg-emerald-600 text-white hover:bg-emerald-700 dark:hover:bg-emerald-500", isTodayRing);
+      case 2:
+        // Medium green (Medium activity)
+        return cn("bg-emerald-400 dark:bg-emerald-700 text-white hover:bg-emerald-500 dark:hover:bg-emerald-600", isTodayRing);
+      case 1:
+        // Light green (Low activity)
+        return cn("bg-emerald-200 dark:bg-emerald-900/80 text-emerald-900 hover:bg-emerald-300 dark:hover:bg-emerald-800", isTodayRing);
+      case 0:
+      default:
+        // Light gray (No activity) - solid fill background without colored border
+        return cn("bg-zinc-150 bg-zinc-200/80 dark:bg-zinc-800/80 hover:bg-zinc-300 dark:hover:bg-zinc-700", isTodayRing);
+    }
   }
 
   return (
@@ -549,28 +607,28 @@ function ActivityCalendar({ streakDays }) {
         <div>
           <h2 className="font-display text-xl font-bold flex items-center gap-2">
             <span className="text-2xl font-extrabold text-foreground">{totalSubmissions}</span>
-            <span className="text-sm font-medium text-muted-foreground">submissions in the past one year</span>
+            <span className="text-sm font-medium text-muted-foreground">active days logged</span>
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
             Total active days: <strong className="text-foreground">{totalActiveDays}</strong> · Max streak: <strong className="text-foreground">{streakDays} days</strong>
           </p>
         </div>
 
-        {/* Intensity Legend only */}
+        {/* Intensity Legend with filled background colors matching heatmap */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 px-3 py-1.5 rounded-xl border border-border/50">
           <span className="text-[11px] font-medium">Less</span>
           <div className="flex gap-1 items-center">
-            <span className="h-3 w-3 rounded-[3px] bg-white border border-zinc-300 dark:bg-zinc-800 dark:border-zinc-700" title="Inactive" />
-            <span className="h-3 w-3 rounded-[3px] bg-emerald-200 dark:bg-emerald-900/60" title="Light Active" />
-            <span className="h-3 w-3 rounded-[3px] bg-emerald-400/70" title="Medium Active" />
-            <span className="h-3 w-3 rounded-[3px] bg-emerald-500" title="High Active" />
-            <span className="h-3 w-3 rounded-[3px] bg-emerald-600" title="Most Active" />
+            <span className="h-3 w-3 rounded-[3px] bg-zinc-200 dark:bg-zinc-800" title="No activity (Light gray)" />
+            <span className="h-3 w-3 rounded-[3px] bg-emerald-200 dark:bg-emerald-900/80" title="Low activity (Light green)" />
+            <span className="h-3 w-3 rounded-[3px] bg-emerald-400 dark:bg-emerald-700" title="Medium activity (Medium green)" />
+            <span className="h-3 w-3 rounded-[3px] bg-emerald-600 dark:bg-emerald-600" title="High activity (Dark green)" />
+            <span className="h-3 w-3 rounded-[3px] bg-emerald-800 dark:bg-emerald-500" title="Very high activity (Darkest green)" />
           </div>
           <span className="text-[11px] font-medium">More</span>
         </div>
       </div>
 
-      {/* 12 Separated Month Blocks Horizontal Scroll */}
+      {/* Month Blocks Horizontal Scroll (Starting from July) */}
       <div ref={containerRef} className="overflow-x-auto pb-4 pt-2 scrollbar-thin scrollbar-thumb-muted/60">
         <div className="flex items-start gap-3" style={{ width: "max-content" }}>
           {/* Day Labels Column (sticky left) */}
@@ -582,7 +640,7 @@ function ActivityCalendar({ streakDays }) {
             ))}
           </div>
 
-          {/* Month Blocks Separated by Gaps */}
+          {/* Month Blocks Starting from July */}
           {monthBlocks.map((block, bi) => (
             <div key={bi} className="flex flex-col items-center gap-1.5 bg-muted/10 p-1.5 rounded-xl border border-border/30">
               {/* Month Name Above */}
@@ -600,7 +658,12 @@ function ActivityCalendar({ streakDays }) {
                           "h-[14px] w-[14px] rounded-[3px] transition-all cursor-pointer",
                           cellColor(cell)
                         )}
-                        title={cell ? `${cell.iso} · ${cell.level ? `Active (Level ${cell.level})` : "Inactive"}` : ""}
+                        title={cell ? `${cell.iso} · ${
+                          cell.level === 4 ? "Very high activity" :
+                          cell.level === 3 ? "High activity" :
+                          cell.level === 2 ? "Medium activity" :
+                          cell.level === 1 ? "Low activity" : "No activity"
+                        }` : ""}
                       />
                     ))}
                   </div>
