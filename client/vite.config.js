@@ -11,6 +11,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export default defineConfig({
+  nitro: {
+    preset: "node-server",
+  },
   tanstackStart: {
     server: { entry: "server" },
   },
