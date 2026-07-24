@@ -1079,43 +1079,41 @@ function RingingOverlay({ alarm, onDismiss, onIncreaseVolume }) {
     document.body.appendChild(script);
   }, []);
 
-  // ── Fetch snooze risk on mount ──────────────────────────────────────────
+  // ── Rule-Based Risk Decision Logic (Replaces ML Model) ──────────────────
   useEffect(() => {
-    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-    const now  = new Date();
-    const payload = {
-      hour_of_alarm_decimal:    alarm?.hour !== undefined ? (alarm.hour + alarm.minute / 60) : (now.getHours() + now.getMinutes() / 60),
-      sleep_duration_prev_night: alarm?.sleepHours ?? 6.5,   // Use actual alarm inputs!
-      snooze_count_last_7_days:  alarm?.snoozeCount ?? 2,
-      study_session_pending:     alarm?.studyPending ? 1 : 0,
-      self_reported_energy:      alarm?.energyLevel ?? 3,
-      day_of_week:              days[now.getDay()],
-    };
-    const calculateLocalSnoozeRisk = () => {
-      const snoozes = Number(alarm?.snoozeCount ?? 0);
-      const sleep = Number(alarm?.sleepHours ?? 7);
-      const energy = Number(alarm?.energyLevel ?? 3);
+    const sleep = Number(alarm?.sleepHours ?? 7);
+    const snoozes = Number(alarm?.snoozeCount ?? 2);
+    const energy = Number(alarm?.energyLevel ?? 3);
 
-      // High risk rule (QR Scanner Required): Satisfies ALL THREE: sleep > 8 AND snoozes >= 7 AND energy > 3
-      const isHighRiskCondition = (sleep > 8) && (snoozes >= 7) && (energy > 3);
+    /**
+     * Rule 1: High-Risk User → QR Scanner Required
+     * Condition: (sleep > 8) OR (snoozes >= 7) OR (energy >= 3)
+     * OR all 3 conditions true.
+     */
+    const isHighRisk = (sleep > 8) || (snoozes >= 7) || (energy >= 3);
 
-      const prob = isHighRiskCondition ? 88 : 20;
-      const risk_level = isHighRiskCondition ? "high" : "low";
+    /**
+     * Rule 2: Low-Risk User → Direct Dismiss
+     * Condition: (sleep < 5) OR (snoozes < 3) OR (energy < 2)
+     * OR all 3 conditions true.
+     */
+    const isLowRisk = (sleep < 5) || (snoozes < 3) || (energy < 2);
 
-      return {
-        snooze_probability: prob,
-        risk_level,
-        will_snooze: isHighRiskCondition,
-      };
-    };
+    /**
+     * Decision Evaluation:
+     * High-Risk condition takes priority for QR Scanner requirement.
+     * Otherwise default to low risk (Direct Dismiss).
+     */
+    const riskLevel = isHighRisk ? "high" : "low";
 
-    mlApi.predictSnoozeRisk(payload)
-      .then(data => { setSnoozeData(data); setMlLoading(false); })
-      .catch(err => {
-        console.warn("Snooze risk ML backend unavailable, using client prediction model:", err);
-        setSnoozeData(calculateLocalSnoozeRisk());
-        setMlLoading(false);
-      });
+    setSnoozeData({
+      snooze_probability: isHighRisk ? 90 : 15,
+      risk_level: riskLevel,
+      will_snooze: isHighRisk,
+      isHighRisk,
+      isLowRisk,
+    });
+    setMlLoading(false);
   }, [alarm]);
 
   // ── QR Scanner loop ──────────────────────────────────────────────────────
@@ -1277,9 +1275,9 @@ function RingingOverlay({ alarm, onDismiss, onIncreaseVolume }) {
               <div className="flex items-center gap-2">
                 <Brain className="h-5 w-5 text-primary shrink-0"/>
                 <div>
-                  <p className="text-xs uppercase font-bold tracking-wider text-muted-foreground">ML Snooze Prediction</p>
+                  <p className="text-xs uppercase font-bold tracking-wider text-muted-foreground">Rule-Based Alarm Evaluation</p>
                   <p className="text-sm font-bold text-foreground mt-0.5">
-                    {snoozeData.will_snooze ? "You're likely to snooze!" : "You'll probably wake up!"}
+                    {snoozeData.will_snooze ? "High Snooze Risk (Scan QR Code)" : "Low Snooze Risk (Dismiss Available)"}
                   </p>
                 </div>
               </div>
