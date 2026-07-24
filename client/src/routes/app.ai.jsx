@@ -265,10 +265,10 @@ function _nullishCoalesce(lhs, rhsFn) {
           setState("done");
         }
       };
-      return _jsxdevruntime.jsxDEV("div", { className: "grid gap-6 lg:grid-cols-2", children: [
+      return _jsxdevruntime.jsxDEV("div", { className: state === "done" ? "flex flex-col gap-6" : "grid gap-6 lg:grid-cols-2", children: [
         _jsxdevruntime.jsxDEV("div", {
           children: _jsxdevruntime.jsxDEV("label", {
-            className: "card-surface flex h-64 cursor-pointer flex-col items-center justify-center border-2 border-dashed border-primary/30 transition-colors hover:border-primary/60 hover:bg-primary-soft/30",
+            className: _utils.cn("card-surface flex cursor-pointer flex-col items-center justify-center border-2 border-dashed border-primary/30 transition-all hover:border-primary/60 hover:bg-primary-soft/30", state === "done" ? "h-24 p-3 flex-row gap-4" : "h-64 p-6"),
             onDragOver: (e) => e.preventDefault(),
             onDrop: /* @__PURE__ */ __name((e) => {
               e.preventDefault();
@@ -280,18 +280,20 @@ function _nullishCoalesce(lhs, rhsFn) {
                 const file = _optionalChain([e, "access", (_8) => _8.target, "access", (_9) => _9.files, "optionalAccess", (_10) => _10[0]]);
                 if (file) run(file);
               }, "onChange") }, void 0, false),
-              _jsxdevruntime.jsxDEV("span", { className: "grid h-14 w-14 place-items-center rounded-2xl bg-primary-soft text-primary", children: _jsxdevruntime.jsxDEV(_lucidereact.Upload, { className: "h-6 w-6" }, void 0, false) }, void 0, false),
-              _jsxdevruntime.jsxDEV("p", { className: "mt-4 font-display font-semibold", children: "Drop your PDF or notes here" }, void 0, false),
-              _jsxdevruntime.jsxDEV("p", { className: "mt-1 text-sm text-muted-foreground", children: "or click to browse \xB7 PDF, TXT, MD up to 20MB" }, void 0, false)
+              _jsxdevruntime.jsxDEV("span", { className: _utils.cn("grid place-items-center rounded-2xl bg-primary-soft text-primary", state === "done" ? "h-10 w-10 shrink-0" : "h-14 w-14"), children: _jsxdevruntime.jsxDEV(_lucidereact.Upload, { className: state === "done" ? "h-5 w-5" : "h-6 w-6" }, void 0, false) }, void 0, false),
+              _jsxdevruntime.jsxDEV("div", { className: state === "done" ? "text-left" : "text-center mt-4", children: [
+                _jsxdevruntime.jsxDEV("p", { className: "font-display font-semibold text-sm", children: state === "done" ? "Upload another file or replace notes" : "Drop your PDF or notes here" }, void 0, false),
+                _jsxdevruntime.jsxDEV("p", { className: "text-xs text-muted-foreground", children: "or click to browse \xB7 PDF, TXT, MD up to 20MB" }, void 0, false)
+              ] }, void 0, true)
             ]
           }, void 0, true)
         }, void 0, false),
         _jsxdevruntime.jsxDEV("div", { className: "card-surface p-6", children: [
-          state === "idle" && _jsxdevruntime.jsxDEV("div", { className: "flex h-full flex-col items-center justify-center text-center", children: [
+          state === "idle" && _jsxdevruntime.jsxDEV("div", { className: "flex h-full flex-col items-center justify-center text-center py-12", children: [
             _jsxdevruntime.jsxDEV(_lucidereact.FileText, { className: "h-10 w-10 text-muted-foreground/40" }, void 0, false),
             _jsxdevruntime.jsxDEV("p", { className: "mt-3 text-sm text-muted-foreground", children: "Your AI summary will appear here." }, void 0, false)
           ] }, void 0, true),
-          state === "loading" && _jsxdevruntime.jsxDEV("div", { className: "flex h-full flex-col items-center justify-center gap-3", children: [
+          state === "loading" && _jsxdevruntime.jsxDEV("div", { className: "flex h-full flex-col items-center justify-center gap-3 py-12", children: [
             _jsxdevruntime.jsxDEV(_kit.ThinkingDots, {}, void 0, false),
             _jsxdevruntime.jsxDEV("p", { className: "text-sm text-muted-foreground", children: ["Gemini is reading ", fileName, "\u2026"] }, void 0, true),
             _jsxdevruntime.jsxDEV("div", {
@@ -300,10 +302,12 @@ function _nullishCoalesce(lhs, rhsFn) {
             }, void 0, false)
           ] }, void 0, true),
           state === "done" && _jsxdevruntime.jsxDEV(_framermotion.motion.div, { initial: { opacity: 0 }, animate: { opacity: 1 }, children: [
-            _jsxdevruntime.jsxDEV("span", { className: "chip bg-emerald-soft text-emerald-brand", children: ["Summary ready \xB7 ", fileName] }, void 0, true),
-            _jsxdevruntime.jsxDEV("h3", { className: "mt-3 font-display text-lg font-semibold", children: "AI Summary" }, void 0, false),
-            _jsxdevruntime.jsxDEV("div", { className: "mt-3 max-h-[28rem] overflow-y-auto pr-2 space-y-2 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap scrollbar-thin scrollbar-thumb-muted", children: summaryText }, void 0, false),
-            _jsxdevruntime.jsxDEV("button", { onClick: () => onGenerateQuiz && onGenerateQuiz(summaryText), className: "btn-gradient mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold", children: "Generate quiz from this \u2192" }, void 0, false)
+            _jsxdevruntime.jsxDEV("div", { className: "flex items-center justify-between gap-3 mb-3", children: [
+              _jsxdevruntime.jsxDEV("span", { className: "chip bg-emerald-soft text-emerald-brand font-medium", children: ["Summary ready \xB7 ", fileName] }, void 0, true),
+              _jsxdevruntime.jsxDEV("button", { onClick: () => onGenerateQuiz && onGenerateQuiz(summaryText), className: "btn-gradient rounded-xl px-4 py-2 text-xs font-semibold shrink-0 flex items-center gap-1.5", children: ["Generate quiz from this ", _jsxdevruntime.jsxDEV(_lucidereact.Sparkles, { className: "h-3.5 w-3.5" }, void 0, false)] }, void 0, false)
+            ] }, void 0, true),
+            _jsxdevruntime.jsxDEV("h3", { className: "font-display text-lg font-bold text-foreground mb-3", children: "AI Summary" }, void 0, false),
+            _jsxdevruntime.jsxDEV("div", { className: "max-h-[32rem] overflow-y-auto pr-3 space-y-3 text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap rounded-xl bg-muted/20 p-4 border border-border/50 scrollbar-thin scrollbar-thumb-muted-foreground/30", children: summaryText }, void 0, false)
           ] }, void 0, true)
         ] }, void 0, true)
       ] }, void 0, true);

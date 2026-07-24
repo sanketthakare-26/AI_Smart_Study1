@@ -150,55 +150,6 @@ function Summarizer({ onGenerateQuiz }) {
             } catch (e) {
                 res = await aiApi.summarizeNotes({ text: fileText, fileName: file.name });
             }
-            setSummaryText(res?.summary || "No summary generated.");
-        } catch (err) {
-            console.error("Summarizer error:", err);
-            setSummaryText("Failed to generate summary. Please try again.");
-        } finally {
-            setState("done");
-        }
-    };
-    return (<div className="grid gap-6 lg:grid-cols-2">
-      <div>
-        <label className="card-surface flex h-64 cursor-pointer flex-col items-center justify-center border-2 border-dashed border-primary/30 transition-colors hover:border-primary/60 hover:bg-primary-soft/30" onDragOver={(e) => e.preventDefault()} onDrop={(e) => {
-            e.preventDefault();
-            const file = e.dataTransfer.files[0];
-            if (file) run(file);
-        }}>
-          <input type="file" accept=".pdf,.txt,.md" className="hidden" onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) run(file);
-          }}/>
-          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-primary-soft text-primary"><Upload className="h-6 w-6"/></span>
-          <p className="mt-4 font-display font-semibold">Drop your PDF or notes here</p>
-          <p className="mt-1 text-sm text-muted-foreground">or click to browse · PDF, TXT, MD up to 20MB</p>
-        </label>
-      </div>
-      <div className="card-surface p-6">
-        {state === "idle" && (<div className="flex h-full flex-col items-center justify-center text-center">
-            <FileText className="h-10 w-10 text-muted-foreground/40"/>
-            <p className="mt-3 text-sm text-muted-foreground">Your AI summary will appear here.</p>
-          </div>)}
-        {state === "loading" && (<div className="flex h-full flex-col items-center justify-center gap-3">
-            <ThinkingDots />
-            <p className="text-sm text-muted-foreground">Gemini is reading {fileName}…</p>
-            <div className="w-full max-w-xs space-y-2">
-              {[80, 60, 90].map((w, i) => (<div key={i} className="h-3 animate-pulse rounded-full bg-muted" style={{ width: `${w}%` }}/>))}
-            </div>
-          </div>)}
-        {state === "done" && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <span className="chip bg-emerald-soft text-emerald-brand">Summary ready · {fileName}</span>
-            <h3 className="mt-3 font-display text-lg font-semibold">AI Summary</h3>
-            <div className="mt-3 max-h-[28rem] overflow-y-auto pr-2 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap scrollbar-thin scrollbar-thumb-muted">{summaryText}</div>
-            <button onClick={() => onGenerateQuiz && onGenerateQuiz(summaryText)} className="btn-gradient mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold">Generate quiz from this →</button>
-          </motion.div>)}
-      </div>
-    </div>);
-}
-function QuizGen({ initialContext }) {
-    const [started, setStarted] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const start = async () => {
