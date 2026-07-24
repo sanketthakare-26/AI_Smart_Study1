@@ -10,8 +10,10 @@ const UserSchema = new mongoose.Schema({
     wakeWindowEnd: { type: String, default: "08:00" },
     dailyStudyHours: { type: Number, default: 4 },
   },
-  streak: { type: Number, default: 17 },
-  badges: { type: [String], default: ["Early Riser", "Deep Diver", "Streak Master"] },
+  streak: { type: Number, default: 0 },
+  totalHours: { type: Number, default: 0 },     // cumulative study hours
+  lastLogin: { type: Date, default: Date.now },  // last time user logged in
+  badges: { type: [String], default: ["Early Riser"] },
   createdAt: { type: Date, default: Date.now },
 });
 

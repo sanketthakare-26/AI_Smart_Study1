@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -47,6 +47,8 @@ interface GlobalUser {
   socketId: string;
   name: string;
   userCode?: string;
+  email?: string;
+  uid?: string;
   hours?: number;
   streak?: number;
   active?: boolean;
@@ -63,17 +65,20 @@ const globalUsers: GlobalUser[] = [];
 io.on("connection", (socket) => {
   console.log("🔌 Client connected:", socket.id);
 
-  // ── Send current room list to the newly connected client immediately ──
+  // ── Send current room list and registered users to newly connected client ──
   socket.emit("room-list-update", serverRooms);
+  socket.emit("global-users-update", globalUsers);
 
   // ── Register user as globally online ──
-  socket.on("user-online", ({ name, userCode, hours, streak }: { name: string; userCode?: string; hours?: number; streak?: number }) => {
-    const existing = globalUsers.find((u) => u.userCode === userCode || (userCode && u.userCode === userCode) || u.socketId === socket.id);
+  socket.on("user-online", ({ name, userCode, hours, streak, email, uid }: { name: string; userCode?: string; hours?: number; streak?: number; email?: string; uid?: string }) => {
+    const existing = globalUsers.find((u) => u.userCode === userCode || (uid && u.uid === uid) || (email && u.email === email) || u.socketId === socket.id);
     if (!existing) {
       globalUsers.push({
         socketId: socket.id,
         name: name || "Student",
         userCode: userCode || `U-${Math.floor(1000 + Math.random() * 9000)}`,
+        email: email || undefined,
+        uid: uid || undefined,
         hours: hours || 0,
         streak: streak || 0,
         active: true,
@@ -82,6 +87,8 @@ io.on("connection", (socket) => {
       existing.socketId = socket.id;
       existing.name = name || existing.name;
       if (userCode) existing.userCode = userCode;
+      if (email) existing.email = email;
+      if (uid) existing.uid = uid;
       if (hours !== undefined) existing.hours = hours;
       if (streak !== undefined) existing.streak = streak;
       existing.active = true;

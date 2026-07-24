@@ -139,9 +139,14 @@ export const login = async (req: Request, res: Response) => {
           firebaseUid,
           name: firebaseData.displayName || email.split("@")[0],
           email,
-          streak: 17,
-          badges: ["Early Riser", "Deep Diver", "Streak Master"],
+          streak: 0,
+          totalHours: 0,
+          badges: ["Early Riser"],
         }).save();
+      } else {
+        // Update last login time
+        user.lastLogin = new Date();
+        await user.save();
       }
 
       const userPayload = {
@@ -189,5 +194,21 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("❌ Login error:", error);
     return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Get all registered users for global leaderboard
+export const getAllUsers = async (_req: Request, res: Response) => {
+  try {
+    const users = await User.find(
+      {},
+      "firebaseUid name email streak totalHours lastLogin createdAt"
+    )
+      .sort({ totalHours: -1, streak: -1 })
+      .lean();
+    return res.status(200).json({ ok: true, users });
+  } catch (error) {
+    console.error("❌ Error fetching users:", error);
+    return res.status(500).json({ error: "Failed to fetch users" });
   }
 };

@@ -10,6 +10,15 @@ import { io } from "socket.io-client";
 import { fadeUp, PageHeader, staggerContainer } from "@/components/kit";
 import { cn } from "@/lib/utils";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+function formatActiveHrs(hours) {
+  if (!hours && hours !== 0) return "—";
+  const h = Number(hours);
+  if (h < 1) return `${Math.round(h * 60)}m`;
+  return `${h.toFixed(1)}h`;
+}
+
 export const Route = createFileRoute("/app/rooms")({
   head: () => ({ meta: [{ title: "Study Rooms — VediQ" }] }),
   component: RoomsPage,
@@ -74,6 +83,7 @@ function RoomsPage() {
   const [socket, setSocket] = useState(null);
   const [onlineRoomUsers, setOnlineRoomUsers] = useState([]);
   const [globalOnlineUsers, setGlobalOnlineUsers] = useState([]);
+  const [allDbUsers, setAllDbUsers] = useState([]);  // ALL registered users from DB
 
   const [friendsList, setFriendsList] = useState(() => {
     try { return JSON.parse(localStorage.getItem("nw_friends") || "[]"); } catch { return []; }
@@ -94,7 +104,14 @@ function RoomsPage() {
     const socketUrl = import.meta.env.VITE_SOCKET_URL || (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "") : "http://localhost:5000");
     const s = io(socketUrl, { transports: ["websocket", "polling"] });
     s.on("connect", () => {
-      s.emit("user-online", { name: userName, userCode: myUserCode, hours: userHours, streak: userStreak });
+      s.emit("user-online", {
+        name: userName,
+        userCode: myUserCode,
+        hours: userHours,
+        streak: userStreak,
+        email: currentUser.email || "",
+        uid: currentUser.uid || currentUser.firebaseUid || "",
+      });
     });
     s.on("room-users-update", users => setOnlineRoomUsers(users));
     s.on("global-users-update", users => setGlobalOnlineUsers(users));
@@ -103,6 +120,17 @@ function RoomsPage() {
     setSocket(s);
     return () => s.disconnect();
   }, [userName, myUserCode, userHours, userStreak]);
+
+  // Fetch ALL registered users from DB for the global leaderboard
+  useEffect(() => {
+    fetch(`${API_URL}/auth/users`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok && Array.isArray(data.users)) setAllDbUsers(data.users);
+      })
+      .catch(err => console.warn("Could not load user list:", err));
+  }, []);
+
 
   useEffect(() => {
     if (!socket || !activeRoomId) return;
@@ -176,36 +204,81 @@ function RoomsPage() {
     toast.success(`${f.name} added!`);
   };
 
-  // Derive dynamic real-user leaderboard from global online active users + current user
+  // Build leaderboard merging ALL DB users + live socket data
   const realLeaderboard = (() => {
     const map = new Map();
-    // 1. Add current user with their exact credentials
-    map.set(myUserCode, {
-      name: userName,
-      hours: userHours,
-      streak: userStreak,
-      userCode: myUserCode,
-      you: true,
+
+    // 1. Start with ALL DB registered users
+    allDbUsers.forEach(u => {
+      const isYou = currentUser.uid === u.firebaseUid ||
+                    currentUser.email === u.email;
+      map.set(u.firebaseUid || u.email, {
+        name: u.name || u.email?.split("@")[0] || "User",
+        email: u.email || "",
+        hours: Number(u.totalHours) || 0,
+        streak: Number(u.streak) || 0,
+        uid: u.firebaseUid,
+        isOnline: false,
+        you: isYou,
+        // When they last logged in
+        lastLogin: u.lastLogin ? new Date(u.lastLogin) : null,
+        joinedAt: u.createdAt ? new Date(u.createdAt) : null,
+      });
     });
 
-    // 2. Add all global socket users
+    // 2. Overlay live socket data (online users have real-time hours)
     globalOnlineUsers.forEach(u => {
-      if (u.userCode) {
-        const isYou = u.userCode === myUserCode;
-        map.set(u.userCode, {
+      const key = u.uid || u.email || u.userCode;
+      if (!key) return;
+      const existing = map.get(key);
+      const isYou = u.userCode === myUserCode;
+      if (existing) {
+        existing.isOnline = true;
+        existing.hours = Math.max(existing.hours, Number(u.hours) || 0);
+        existing.streak = Math.max(existing.streak, Number(u.streak) || 0);
+        if (isYou) existing.you = true;
+      } else {
+        map.set(key, {
           name: isYou ? userName : (u.name && u.name !== "Student" ? u.name : `User #${u.userCode}`),
-          hours: u.hours || 0,
-          streak: u.streak || 0,
-          userCode: u.userCode,
+          email: u.email || "",
+          hours: Number(u.hours) || 0,
+          streak: Number(u.streak) || 0,
+          uid: u.uid || u.userCode,
+          isOnline: true,
           you: isYou,
+          lastLogin: new Date(),
+          joinedAt: null,
         });
       }
     });
 
+    // 3. Ensure current user always appears (even if not yet in DB)
+    const meKey = currentUser.uid || currentUser.email || myUserCode;
+    if (!map.has(meKey)) {
+      map.set(meKey, {
+        name: userName,
+        email: currentUser.email || "",
+        hours: userHours,
+        streak: userStreak,
+        uid: meKey,
+        isOnline: true,
+        you: true,
+        lastLogin: new Date(),
+        joinedAt: null,
+      });
+    } else {
+      const me = map.get(meKey);
+      me.you = true;
+      me.isOnline = true;
+      me.hours = Math.max(me.hours, userHours);
+    }
+
     return Array.from(map.values())
-      .sort((a, b) => b.hours - a.hours)
+      .sort((a, b) => b.hours - a.hours || b.streak - a.streak)
       .map((u, i) => ({ ...u, rank: i + 1 }));
   })();
+
+  const totalActiveUsers = realLeaderboard.filter(u => u.isOnline).length;
 
   const inviteUrl = typeof window !== "undefined" ? window.location.href : "";
   const waMsg = encodeURIComponent(`Study with me on VediQ! My ID: ${myUserCode} — ${inviteUrl}`);
@@ -443,23 +516,35 @@ function RoomsPage() {
         </motion.div>
       </motion.div>
 
-      {/* Real Academic Leaderboard */}
+      {/* All Users Leaderboard */}
       <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-surface p-6">
         <div className="flex items-center justify-between border-b border-border pb-3">
           <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
-            <Crown className="h-5 w-5 text-amber-brand" /> Weekly Academic Leaderboard
+            <Crown className="h-5 w-5 text-amber-brand" /> All Users Leaderboard
           </h2>
-          <span className="chip bg-amber-soft text-xs font-semibold text-amber-brand">Live Active Users</span>
+          <div className="flex items-center gap-2">
+            <span className="chip bg-emerald-soft text-xs font-semibold text-emerald-brand">
+              <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-brand animate-pulse" />
+              {totalActiveUsers} Online Now
+            </span>
+            <span className="chip bg-muted text-xs font-medium text-muted-foreground">
+              {realLeaderboard.length} registered
+            </span>
+          </div>
         </div>
         <div className="mt-4 space-y-2">
           {realLeaderboard.length === 0 ? (
-            <p className="py-4 text-center text-xs text-muted-foreground">No active users on the leaderboard yet.</p>
+            <div className="flex flex-col items-center gap-2 py-8 text-center">
+              <Users className="h-8 w-8 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground">Loading users…</p>
+            </div>
           ) : (
             realLeaderboard.map((p, i) => (
-              <motion.div key={p.userCode || p.name} initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }}
+              <motion.div key={p.uid || p.name} initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.04 }}
                 className={cn("flex items-center gap-4 rounded-xl border px-4 py-3 transition-colors",
-                  p.you ? "border-primary/40 bg-primary-soft/50 font-bold" : "border-border hover:bg-muted/30")}>
+                  p.you ? "border-primary/40 bg-primary-soft/50" : "border-border hover:bg-muted/30")}>
+                {/* Rank badge */}
                 <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg font-display text-sm font-bold",
                   p.rank === 1 ? "bg-amber-soft text-amber-brand" :
                   p.rank === 2 ? "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200" :
@@ -467,13 +552,39 @@ function RoomsPage() {
                   "bg-muted text-muted-foreground")}>
                   {p.rank}
                 </span>
+                {/* Avatar */}
+                <span className={cn(
+                  "relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-[11px] font-bold",
+                  p.you ? "bg-primary text-primary-foreground" : "bg-primary-soft text-primary"
+                )}>
+                  {p.name.split(" ").map(w => w[0] || "").join("").toUpperCase().slice(0, 2)}
+                  {/* Online indicator */}
+                  <span className={cn(
+                    "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card",
+                    p.isOnline ? "bg-emerald-brand" : "bg-muted-foreground/40"
+                  )} />
+                </span>
+                {/* Name + login ID */}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">
-                    {p.name} {p.you && <span className="ml-1 text-xs font-medium text-primary">(you)</span>}
+                    {p.name}
+                    {p.you && <span className="ml-1.5 text-xs font-medium text-primary">(you)</span>}
+                    {p.isOnline && !p.you && (
+                      <span className="ml-1.5 inline-flex items-center gap-0.5 rounded-full bg-emerald-soft px-1.5 py-0.5 text-[10px] font-semibold text-emerald-brand">
+                        online
+                      </span>
+                    )}
                   </p>
-                  <p className="text-xs text-muted-foreground">{p.streak}-day streak</p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {p.email || `ID: ${p.uid?.slice(0, 8) || "—"}`}
+                    {p.streak > 0 && <> · {p.streak}🔥</>}
+                  </p>
                 </div>
-                <span className="shrink-0 font-display text-sm font-bold text-primary">{p.hours}h</span>
+                {/* Hours at top right */}
+                <div className="flex shrink-0 flex-col items-end">
+                  <span className="font-display text-sm font-bold text-primary">{formatActiveHrs(p.hours)}</span>
+                  <span className="text-[10px] text-muted-foreground">study hrs</span>
+                </div>
               </motion.div>
             ))
           )}
