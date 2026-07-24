@@ -444,7 +444,15 @@ function _nullishCoalesce(lhs, rhsFn) {
               _jsxdevruntime.jsxDEV("div", {
                 className: "mt-3 space-y-2.5",
                 children: (() => {
-                  const recentItems = subjectList.length > 0
+                  let storedSessions = [];
+                  try {
+                    const raw = localStorage.getItem("nw_recent_sessions");
+                    if (raw) storedSessions = JSON.parse(raw);
+                  } catch (_) {}
+
+                  const recentItems = storedSessions.length > 0
+                    ? storedSessions.slice(0, 4)
+                    : subjectList.length > 0
                     ? subjectList.slice(0, 4).map((s, idx) => ({
                         id: s.id || `s_${idx}`,
                         subject: s.name,
@@ -460,8 +468,8 @@ function _nullishCoalesce(lhs, rhsFn) {
                       _jsxdevruntime.jsxDEV("p", { className: "truncate font-medium", children: h.subject }, void 0, false),
                       _jsxdevruntime.jsxDEV("p", { className: "text-xs text-muted-foreground", children: [h.date, " \xB7 ", h.duration, " \xB7 ", h.pomodoros, " pomodoros"] }, void 0, true)
                     ] }, void 0, true),
-                    _jsxdevruntime.jsxDEV("span", { className: _utils.cn("chip shrink-0", h.focus >= 85 ? "bg-emerald-soft text-emerald-brand" : "bg-amber-soft text-amber-brand"), children: h.focus }, void 0, false)
-                  ] }, h.id, true));
+                    _jsxdevruntime.jsxDEV("span", { className: _utils.cn("chip shrink-0", h.focus >= 85 ? "bg-emerald-soft text-emerald-brand" : "bg-amber-soft text-amber-brand"), children: typeof h.focus === "number" ? `${h.focus}%` : h.focus }, void 0, false)
+                  ] }, h.id || h.subject, true));
                 })()
               }, void 0, false)
             ] }, void 0, true)
