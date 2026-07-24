@@ -116,7 +116,7 @@ function _nullishCoalesce(lhs, rhsFn) {
               setTab("quiz");
             } }, void 0, false),
             tab === "quiz" && _jsxdevruntime.jsxDEV(QuizGen, { initialContext: summaryContext }, void 0, false),
-            tab === "flashcards" && _jsxdevruntime.jsxDEV(Flashcards, {}, void 0, false)
+            tab === "flashcards" && _jsxdevruntime.jsxDEV(Flashcards, { initialContext: summaryContext }, void 0, false)
           ] }, tab, true)
         }, void 0, false)
       ] }, void 0, true);
@@ -302,7 +302,7 @@ function _nullishCoalesce(lhs, rhsFn) {
           state === "done" && _jsxdevruntime.jsxDEV(_framermotion.motion.div, { initial: { opacity: 0 }, animate: { opacity: 1 }, children: [
             _jsxdevruntime.jsxDEV("span", { className: "chip bg-emerald-soft text-emerald-brand", children: ["Summary ready \xB7 ", fileName] }, void 0, true),
             _jsxdevruntime.jsxDEV("h3", { className: "mt-3 font-display text-lg font-semibold", children: "AI Summary" }, void 0, false),
-            _jsxdevruntime.jsxDEV("div", { className: "mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap", children: summaryText }, void 0, false),
+            _jsxdevruntime.jsxDEV("div", { className: "mt-3 max-h-[28rem] overflow-y-auto pr-2 space-y-2 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap scrollbar-thin scrollbar-thumb-muted", children: summaryText }, void 0, false),
             _jsxdevruntime.jsxDEV("button", { onClick: () => onGenerateQuiz && onGenerateQuiz(summaryText), className: "btn-gradient mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold", children: "Generate quiz from this \u2192" }, void 0, false)
           ] }, void 0, true)
         ] }, void 0, true)
@@ -399,17 +399,43 @@ function _nullishCoalesce(lhs, rhsFn) {
       ] }, void 0, true);
     }
 
-    const cards = [
-      { front: "What does the learning rate control in gradient boosting?", back: "The contribution of each tree (shrinkage). Lower rates need more trees but generalize better." },
-      { front: "Bagging vs Boosting \u2014 main statistical difference?", back: "Bagging reduces variance (parallel, independent trees); boosting reduces bias (sequential, error-correcting trees)." },
-      { front: "What regularization does XGBoost add?", back: "L1/L2 penalties on leaf weights plus a complexity term on the number of leaves." }
-    ];
-    function Flashcards() {
+    function Flashcards({ initialContext }) {
+      const defaultCards = [
+        { front: "What does the learning rate control in gradient boosting?", back: "The contribution of each tree (shrinkage). Lower rates need more trees but generalize better." },
+        { front: "Bagging vs Boosting \u2014 main statistical difference?", back: "Bagging reduces variance (parallel, independent trees); boosting reduces bias (sequential, error-correcting trees)." },
+        { front: "What regularization does XGBoost add?", back: "L1/L2 penalties on leaf weights plus a complexity term on the number of leaves." }
+      ];
+
+      const cards = _react.useMemo(() => {
+        if (!initialContext) return defaultCards;
+        const sentences = initialContext
+          .split(/(?<=[.?!])\s+|\n+/)
+          .map(s => s.trim())
+          .filter(s => s.length > 25 && !s.startsWith("#") && !s.startsWith("---") && !s.startsWith("💡"));
+
+        if (sentences.length < 2) return defaultCards;
+
+        return [
+          {
+            front: `Key Concept: What is the main objective of ${sentences[0]?.substring(0, 40)}...?`,
+            back: sentences[0] || "Foundational concept from uploaded study notes."
+          },
+          {
+            front: `Methodology: How does this subject handle data execution?`,
+            back: sentences[1] || "Iterative phase refinement and evaluation."
+          },
+          {
+            front: `Exam Tip & Application:`,
+            back: sentences[2] || "Review formulas, phase diagrams, and operational steps before exams."
+          }
+        ];
+      }, [initialContext]);
+
       const [idx, setIdx] = _react.useState(0);
       const [flipped, setFlipped] = _react.useState(false);
       return _jsxdevruntime.jsxDEV("div", { className: "mx-auto max-w-xl", children: [
         _jsxdevruntime.jsxDEV("div", { className: "mb-4 flex items-center justify-between text-sm text-muted-foreground", children: [
-          _jsxdevruntime.jsxDEV("span", { children: ["Deck: Gradient Boosting \xB7 ", idx + 1, "/", cards.length] }, void 0, true),
+          _jsxdevruntime.jsxDEV("span", { children: [`Deck: ${initialContext ? "Uploaded Notes" : "Gradient Boosting"} \xB7 `, idx + 1, "/", cards.length] }, void 0, true),
           _jsxdevruntime.jsxDEV("span", { className: "chip bg-teal-soft text-teal-brand", children: "Spaced repetition" }, void 0, false)
         ] }, void 0, true),
         _jsxdevruntime.jsxDEV("div", {
@@ -425,12 +451,12 @@ function _nullishCoalesce(lhs, rhsFn) {
               _jsxdevruntime.jsxDEV("div", {
                 className: "card-surface absolute inset-0 flex items-center justify-center p-8 text-center",
                 style: { backfaceVisibility: "hidden" },
-                children: _jsxdevruntime.jsxDEV("p", { className: "font-display text-xl font-semibold", children: cards[idx].front }, void 0, false)
+                children: _jsxdevruntime.jsxDEV("p", { className: "font-display text-xl font-semibold", children: cards[idx]?.front }, void 0, false)
               }, void 0, false),
               _jsxdevruntime.jsxDEV("div", {
                 className: "absolute inset-0 flex items-center justify-center rounded-2xl p-8 text-center text-primary-foreground shadow-lift",
                 style: { backfaceVisibility: "hidden", transform: "rotateY(180deg)", background: "var(--gradient-primary)" },
-                children: _jsxdevruntime.jsxDEV("p", { className: "text-lg leading-relaxed", children: cards[idx].back }, void 0, false)
+                children: _jsxdevruntime.jsxDEV("p", { className: "text-lg leading-relaxed", children: cards[idx]?.back }, void 0, false)
               }, void 0, false)
             ]
           }, void 0, true)

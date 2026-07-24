@@ -189,13 +189,12 @@ function Summarizer({ onGenerateQuiz }) {
         {state === "done" && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <span className="chip bg-emerald-soft text-emerald-brand">Summary ready · {fileName}</span>
             <h3 className="mt-3 font-display text-lg font-semibold">AI Summary</h3>
-            <div className="mt-3 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">{summaryText}</div>
+            <div className="mt-3 max-h-[28rem] overflow-y-auto pr-2 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap scrollbar-thin scrollbar-thumb-muted">{summaryText}</div>
             <button onClick={() => onGenerateQuiz && onGenerateQuiz(summaryText)} className="btn-gradient mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold">Generate quiz from this →</button>
           </motion.div>)}
       </div>
     </div>);
 }
-/* ---------------- Quiz ---------------- */
 function QuizGen({ initialContext }) {
     const [started, setStarted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -267,27 +266,27 @@ function QuizGen({ initialContext }) {
         </motion.div>)}
     </div>);
 }
-/* ---------------- Flashcards ---------------- */
-const cards = [
-    { front: "What does the learning rate control in gradient boosting?", back: "The contribution of each tree (shrinkage). Lower rates need more trees but generalize better." },
-    { front: "Bagging vs Boosting — main statistical difference?", back: "Bagging reduces variance (parallel, independent trees); boosting reduces bias (sequential, error-correcting trees)." },
-    { front: "What regularization does XGBoost add?", back: "L1/L2 penalties on leaf weights plus a complexity term on the number of leaves." },
-];
-function Flashcards() {
+function Flashcards({ initialContext }) {
+    const defaultCards = [
+        { front: "What does the learning rate control in gradient boosting?", back: "The contribution of each tree (shrinkage). Lower rates need more trees but generalize better." },
+        { front: "Bagging vs Boosting — main statistical difference?", back: "Bagging reduces variance (parallel, independent trees); boosting reduces bias (sequential, error-correcting trees)." },
+        { front: "What regularization does XGBoost add?", back: "L1/L2 penalties on leaf weights plus a complexity term on the number of leaves." }
+    ];
+    const cards = Array.isArray(defaultCards) ? defaultCards : [];
     const [idx, setIdx] = useState(0);
     const [flipped, setFlipped] = useState(false);
     return (<div className="mx-auto max-w-xl">
       <div className="mb-4 flex items-center justify-between text-sm text-muted-foreground">
-        <span>Deck: Gradient Boosting · {idx + 1}/{cards.length}</span>
+        <span>Deck: {initialContext ? "Uploaded Notes" : "Gradient Boosting"} · {idx + 1}/{cards.length}</span>
         <span className="chip bg-teal-soft text-teal-brand">Spaced repetition</span>
       </div>
       <div className="relative h-72 cursor-pointer" style={{ perspective: 1200 }} onClick={() => setFlipped((f) => !f)}>
         <motion.div className="relative h-full w-full" style={{ transformStyle: "preserve-3d" }} animate={{ rotateY: flipped ? 180 : 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
           <div className="card-surface absolute inset-0 flex items-center justify-center p-8 text-center" style={{ backfaceVisibility: "hidden" }}>
-            <p className="font-display text-xl font-semibold">{cards[idx].front}</p>
+            <p className="font-display text-xl font-semibold">{cards[idx]?.front}</p>
           </div>
           <div className="absolute inset-0 flex items-center justify-center rounded-2xl p-8 text-center text-primary-foreground shadow-lift" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", background: "var(--gradient-primary)" }}>
-            <p className="text-lg leading-relaxed">{cards[idx].back}</p>
+            <p className="text-lg leading-relaxed">{cards[idx]?.back}</p>
           </div>
         </motion.div>
       </div>
